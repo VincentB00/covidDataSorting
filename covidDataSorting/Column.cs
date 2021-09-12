@@ -8,7 +8,7 @@ namespace covidDataSorting
 {
     class Column
     {
-        List<String> rows;
+        public List<String> rows;
         public Column()
         {
             rows = new List<string>();
@@ -20,5 +20,26 @@ namespace covidDataSorting
             else 
                 return null;
         }
+        public void addRow(String data)
+        {
+            rows.Add(data);
+        }
+
+        public String getRow(int row)
+        {
+            return rows[row];
+        }
+
+        public bool setRow(int row, String data)
+        {
+            if (row > rows.Count)
+                return false;
+            else
+            {
+                rows[row] = data;
+                return true;
+            }
+        }
+
     }
 }

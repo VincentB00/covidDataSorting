@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,6 +15,7 @@ namespace covidDataSorting
     public partial class MainMenu : Form
     {
         GridManager GM;
+        FileLocation newCSVFile;
         public MainMenu()
         {
             InitializeComponent();
@@ -36,13 +39,49 @@ namespace covidDataSorting
 
         private void combineCSVFileButton_Click(object sender, EventArgs e)
         {
-            FileLocation[] FL = getAllFileLocation();
+            DialogResult DR = saveFileDialog1.ShowDialog();
 
-            GM = new GridManager();
+            if(DR == DialogResult.OK)
+            {
+                FileLocation[] FL = getAllFileLocation();
 
+                GM = new GridManager();
 
+                CSVFileManager FM = new CSVFileManager();
+
+                debugLabel.Text = "Begin Read CSV file";
+
+                Task t1 = Task.Run(() => {
+                    FM.readCSVFile(FL[0].absolutePath);
+
+                });
+                t1.Wait();
+
+                absolutePathLabel.Text = newCSVFile.fileName;
+
+                debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFile.absolutePath;
+
+                Task t2 = Task.Run(() => {
+                    FM.writeCSVFile(newCSVFile.absolutePath);
+                });
+                t2.Wait();
+
+                debugLabel.Text = "Job Done";
+            }
         }
 
+        private void saveFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+            newCSVFile = new FileLocation(sender.ToString().Substring(sender.ToString().IndexOf("FileName:") + "FileName: ".Length));
+        }
+
+        private void openNewFileButton_Click(object sender, EventArgs e)
+        {
+            OldBatCommand(newCSVFile.absolutePath);
+        }
+
+
+        //------------------------------------------------------------------------------------------------------
         private FileLocation[] getAllFileLocation()
         {
             int numberOfFile = CSVFileList.Items.Count;
@@ -55,5 +94,41 @@ namespace covidDataSorting
 
             return FL;
         }
+        private void OldBatCommand(string url)
+        {
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    url = url.Replace("&", "^&");
+                    Process.Start(new ProcessStartInfo("cmd", $"/c {url}") { CreateNoWindow = true });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", url);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", url);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+        
+
+        private void printDebug(String data)
+        {
+            DebugConsole.AppendText(data);
+        }
+
+        
     }
 }
