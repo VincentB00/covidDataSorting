@@ -51,11 +51,15 @@ namespace covidDataSorting
 
                 debugLabel.Text = "Begin Read CSV file";
 
-                Task t1 = Task.Run(() => {
-                    FM.readCSVFile(FL[0].absolutePath);
+                foreach (FileLocation fileLocation in FL)
+                {
+                    Task t1 = Task.Run(() => {
+                        FM.readCSVFile(fileLocation.absolutePath);
 
-                });
-                t1.Wait();
+                    });
+                    t1.Wait();
+                }
+
 
                 absolutePathLabel.Text = newCSVFile.fileName;
 

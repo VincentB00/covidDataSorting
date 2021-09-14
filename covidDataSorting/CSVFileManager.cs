@@ -10,24 +10,26 @@ namespace covidDataSorting
 {
     class CSVFileManager
     {
-        GridManager GM;
+        List<GridManager> GMs;
         public CSVFileManager()
         {
-            GM = new GridManager();
+            GMs = new List<GridManager>();
         }
         public bool readCSVFile(String absolutePath)
         {
+            GMs.Add(new GridManager());
+            int currentGMIndex = GMs.Count - 1;
             try
             {
                 using (var steamReader = new StreamReader(absolutePath))
                 {
                     var header = steamReader.ReadLine();
-                    GM.addHeader(header);
+                    GMs[currentGMIndex].addHeader(header);
 
                     while (!steamReader.EndOfStream)
                     {
                         var line = steamReader.ReadLine();
-                        GM.addRow(line);
+                        GMs[currentGMIndex].addRow(line);
                         //Console.WriteLine(line);
                     }
 
@@ -46,20 +48,19 @@ namespace covidDataSorting
             {
                 using (StreamWriter sw = new StreamWriter(absolutePath))
                 {
-                    foreach (Row row in GM.rowList)
-                        sw.WriteLine(row.ToString());
+                    foreach (GridManager gridFile in GMs)
+                    {
+                        foreach (Row row in gridFile.rowList)
+                            sw.WriteLine(row.ToString());
+                    }
                 }
+                
                 return true;
             }
             catch(Exception ex)
             {
                 return false;
             }
-        }
-
-        public List<Row> getGrid()
-        {
-            return GM.rowList;
         }
     }
 }

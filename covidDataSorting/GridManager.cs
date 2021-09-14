@@ -18,19 +18,55 @@ namespace covidDataSorting
             maxRow = -1;
         }
 
-        public void addHeader(String header)
+        public void addHeader(String headers)
         {
             if(maxRow < 0)
             {
-                List<String> headerList = header.Split(',').ToList<String>();
-                
+                List<String> headerList = Row.splitCSVData(headers);
+
                 rowList.Add(new Row());   //because there are no row then each column in column list is new
 
-                rowList[0].addData(header);
+                rowList[0].addData(headers);
                 
                 maxRow++;
                 maxColumn = headerList.Count - 1;
             }
+            else
+            {
+                int numberOfAddedColumn = 0;
+
+                List<String> headerList = Row.splitCSVData(headers);
+
+                List<String> currentHeaderList = rowList[0].columns;
+
+                foreach(String header in headerList)
+                {
+                    foreach(String currentHeader in currentHeaderList)
+                    {
+                        if(currentHeader.CompareTo(header) < 0)
+                        {
+                            addRowData(header, 0);
+                            numberOfAddedColumn++;
+                        }
+                    }
+                }
+
+                maxColumn += numberOfAddedColumn;
+            }
+        }
+
+        
+
+        public void addRow(String line)
+        {
+            maxRow++;
+            rowList.Add(new Row());
+            rowList[maxRow].addData(line);
+        }
+
+        public void addRowData(String line, int rowIndex)
+        {
+            rowList[rowIndex].addData(line);
         }
 
         public String getHeader()
@@ -43,18 +79,24 @@ namespace covidDataSorting
             return result;
         }
 
-        public void addRow(String line)
+        public String getData(int column, int row)
         {
-            maxRow++;
-            rowList.Add(new Row());
-            rowList[maxRow].addData(line);
+            if (column > this.maxColumn && row > this.maxRow)
+                return null;
+            else
+                return rowList[row].columns[column];
         }
 
-        public void addRow(String line, int IDColumn) //need more work
+        public bool setData(int column, int row, String data)
         {
-            maxRow++;
-            rowList.Add(new Row());
-            rowList[maxRow].addData(line);
+            if (column > this.maxColumn && row > this.maxRow)
+                return false;
+            else
+            {
+                rowList[row].columns[column] = data;
+                return true;
+            }
+                
         }
     }
 }

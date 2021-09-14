@@ -35,12 +35,12 @@ namespace covidDataSorting
             this.combineCSVFileButton = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.debugLabel = new System.Windows.Forms.Label();
+            this.openNewFileButton = new System.Windows.Forms.Button();
+            this.absolutePathLabel = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.DebugConsole = new System.Windows.Forms.RichTextBox();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.absolutePathLabel = new System.Windows.Forms.Label();
-            this.openNewFileButton = new System.Windows.Forms.Button();
-            this.debugLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -77,9 +77,9 @@ namespace covidDataSorting
             this.combineCSVFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.combineCSVFileButton.Location = new System.Drawing.Point(309, 51);
             this.combineCSVFileButton.Name = "combineCSVFileButton";
-            this.combineCSVFileButton.Size = new System.Drawing.Size(368, 42);
+            this.combineCSVFileButton.Size = new System.Drawing.Size(187, 42);
             this.combineCSVFileButton.TabIndex = 2;
-            this.combineCSVFileButton.Text = "Combine CSV File With ID column Index:";
+            this.combineCSVFileButton.Text = "Combine CSV File";
             this.combineCSVFileButton.UseVisualStyleBackColor = true;
             this.combineCSVFileButton.Click += new System.EventHandler(this.combineCSVFileButton_Click);
             // 
@@ -109,6 +109,39 @@ namespace covidDataSorting
             this.tabPage1.Text = "Main Menu";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // debugLabel
+            // 
+            this.debugLabel.AutoSize = true;
+            this.debugLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.debugLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.debugLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.debugLabel.Location = new System.Drawing.Point(6, 482);
+            this.debugLabel.Name = "debugLabel";
+            this.debugLabel.Size = new System.Drawing.Size(120, 26);
+            this.debugLabel.TabIndex = 5;
+            this.debugLabel.Text = "Debug Label";
+            // 
+            // openNewFileButton
+            // 
+            this.openNewFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.openNewFileButton.Location = new System.Drawing.Point(309, 99);
+            this.openNewFileButton.Name = "openNewFileButton";
+            this.openNewFileButton.Size = new System.Drawing.Size(156, 39);
+            this.openNewFileButton.TabIndex = 4;
+            this.openNewFileButton.Text = "Open New File:";
+            this.openNewFileButton.UseVisualStyleBackColor = true;
+            this.openNewFileButton.Click += new System.EventHandler(this.openNewFileButton_Click);
+            // 
+            // absolutePathLabel
+            // 
+            this.absolutePathLabel.AutoSize = true;
+            this.absolutePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.absolutePathLabel.Location = new System.Drawing.Point(471, 106);
+            this.absolutePathLabel.Name = "absolutePathLabel";
+            this.absolutePathLabel.Size = new System.Drawing.Size(42, 24);
+            this.absolutePathLabel.TabIndex = 3;
+            this.absolutePathLabel.Text = "N/A";
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.DebugConsole);
@@ -133,39 +166,6 @@ namespace covidDataSorting
             this.saveFileDialog1.DefaultExt = "csv";
             this.saveFileDialog1.Filter = "\"CSV Files(*.csv)|*.csv|Text files (*.txt)|*.txt|All files (*.*)|*.*\"";
             this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
-            // 
-            // absolutePathLabel
-            // 
-            this.absolutePathLabel.AutoSize = true;
-            this.absolutePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.absolutePathLabel.Location = new System.Drawing.Point(471, 106);
-            this.absolutePathLabel.Name = "absolutePathLabel";
-            this.absolutePathLabel.Size = new System.Drawing.Size(42, 24);
-            this.absolutePathLabel.TabIndex = 3;
-            this.absolutePathLabel.Text = "N/A";
-            // 
-            // openNewFileButton
-            // 
-            this.openNewFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.openNewFileButton.Location = new System.Drawing.Point(309, 99);
-            this.openNewFileButton.Name = "openNewFileButton";
-            this.openNewFileButton.Size = new System.Drawing.Size(156, 39);
-            this.openNewFileButton.TabIndex = 4;
-            this.openNewFileButton.Text = "Open New File:";
-            this.openNewFileButton.UseVisualStyleBackColor = true;
-            this.openNewFileButton.Click += new System.EventHandler(this.openNewFileButton_Click);
-            // 
-            // debugLabel
-            // 
-            this.debugLabel.AutoSize = true;
-            this.debugLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.debugLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.debugLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.debugLabel.Location = new System.Drawing.Point(6, 482);
-            this.debugLabel.Name = "debugLabel";
-            this.debugLabel.Size = new System.Drawing.Size(120, 26);
-            this.debugLabel.TabIndex = 5;
-            this.debugLabel.Text = "Debug Label";
             // 
             // MainMenu
             // 
