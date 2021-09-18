@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace covidDataSorting
 {
-    class Row
+    public class Row
     {
         public List<String> columns;
         public Row()
@@ -18,7 +18,15 @@ namespace covidDataSorting
         {
             List<String> lineList = Row.splitCSVData(line);
             foreach(String data in lineList)
-            columns.Add(data);
+                columns.Add(data);
+        }
+
+        public void addData(String line, int except)
+        {
+            List<String> lineList = Row.splitCSVData(line);
+            lineList.RemoveAt(except);
+            foreach (String data in lineList)
+                columns.Add(data);
         }
 
         public override string ToString()
@@ -29,6 +37,11 @@ namespace covidDataSorting
             result = result.Substring(0, result.Length - 1);
 
             return result;
+        }
+
+        public void clear()
+        {
+            columns.Clear();
         }
 
         public static List<String> splitCSVData(String line)
@@ -48,26 +61,58 @@ namespace covidDataSorting
                 else if (currentString.IndexOf('\"') >= 0)
                 {
                     String tempString = line.Substring(line.IndexOf(','));
-                    int nextDQouteIndex = tempString.IndexOf('\"');
+                    int nextDQouteIndex = getIndexNextQoute(tempString);
 
-                    if (tempString.Substring(nextDQouteIndex + 1).Trim().Length > 2)
-                        line = tempString.Substring(nextDQouteIndex + 2);
+                    //Console.WriteLine(tempString.Substring(nextDQouteIndex + 1).Length);
+
+                    if (tempString.Substring(nextDQouteIndex + 1).Length == 0)
+                    {
+                        line = "-1";
+                    }
                     else
-                        line = tempString.Substring(nextDQouteIndex + 1);
+                        line = tempString.Substring(nextDQouteIndex + 2);
 
                     tempString = tempString.Substring(0, nextDQouteIndex + 1);
                     currentString = currentString + tempString;
                 }
                 list.Add(currentString);
 
+                //Console.WriteLine("Current String after format: " + currentString);
+
                 //Console.WriteLine("Current Line: " + line);
 
             }
 
-            if (line.CompareTo("") != 0)
+            if (line.CompareTo("-1") != 0)
                 list.Add(line);
 
             return list;
+        }
+
+        public static int getIndexNextQoute(String data)
+        {
+            bool skip = false;
+            int index = data.IndexOf('\"');
+            while (!skip)
+            {
+                index = data.IndexOf('\"');
+                if (data.Length == index + 1)
+                {
+                    return index;
+                }
+
+                if (data[index + 1] == '\"')
+                {
+                    data = data.Substring(0, index) + "00" + data.Substring(index + 2);
+                    skip = false;
+                }
+                else
+                {
+                    skip = true;
+                    return index;
+                }
+            }
+            return index;
         }
     }
 }

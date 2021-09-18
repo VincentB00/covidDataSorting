@@ -39,13 +39,13 @@ namespace covidDataSorting
 
         private void combineCSVFileButton_Click(object sender, EventArgs e)
         {
+            bool finishRead = true;
+
             DialogResult DR = saveFileDialog1.ShowDialog();
 
             if(DR == DialogResult.OK)
             {
                 FileLocation[] FL = getAllFileLocation();
-
-                GM = new GridManager();
 
                 CSVFileManager FM = new CSVFileManager();
 
@@ -54,23 +54,39 @@ namespace covidDataSorting
                 foreach (FileLocation fileLocation in FL)
                 {
                     Task t1 = Task.Run(() => {
-                        FM.readCSVFile(fileLocation.absolutePath);
-
+                        finishRead = FM.readCSVFile(fileLocation.absolutePath);
                     });
                     t1.Wait();
+                    if (!finishRead)
+                        break;
                 }
 
+                if (!finishRead)
+                {
+                    printDebug("Please make sure to close all related file before read and combine\n");
+                    return;
+                }
+
+                debugLabel.Text = "Begin combining files";
+
+                Task t2 = Task.Run(() =>
+                {
+                    FM.combineCSVFile();
+                });
+                t2.Wait();
 
                 absolutePathLabel.Text = newCSVFile.fileName;
 
                 debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFile.absolutePath;
 
-                Task t2 = Task.Run(() => {
+                Task t3 = Task.Run(() => {
                     FM.writeCSVFile(newCSVFile.absolutePath);
                 });
-                t2.Wait();
+                t3.Wait();
 
                 debugLabel.Text = "Job Done";
+
+                FM = null;
             }
         }
 
@@ -130,9 +146,17 @@ namespace covidDataSorting
 
         private void printDebug(String data)
         {
+            tabControl1.SelectedIndex = 1;
             DebugConsole.AppendText(data);
         }
 
-        
+        private void CSVFileList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Delete)
+            {
+                int currentSlectedIndex = CSVFileList.SelectedIndex;
+                CSVFileList.Items.RemoveAt(currentSlectedIndex);
+            }
+        }
     }
 }

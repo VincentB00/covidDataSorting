@@ -8,9 +8,10 @@ using System.Globalization;
 
 namespace covidDataSorting
 {
-    class CSVFileManager
+    public class CSVFileManager
     {
-        List<GridManager> GMs;
+        public List<GridManager> GMs;
+        public GridManager GM;
         public CSVFileManager()
         {
             GMs = new List<GridManager>();
@@ -41,25 +42,117 @@ namespace covidDataSorting
                 return false;
             }
         }
-
-        public bool writeCSVFile(String absolutePath)
+        public void combineCSVFile()
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(absolutePath))
+                //make a new Grid manager and add all header
+                GM = new GridManager();
+                GM.addHeader(GMs[0].getHeader());
+                GM.addHeader(GMs[2].getHeader());
+                GM.addHeader(GMs[1].getHeader());
+
+
+                //note: GMs[0] is data file, GMs[1] is symtom file, GMs[2] is Vax file
+                //now add the data for each groupd of 3 file
+                do
                 {
-                    foreach (GridManager gridFile in GMs)
+                    Console.WriteLine(GMs.Count);
+                    //loop variable
+                    String currentID;
+
+                    //remove all header for each file
+                    GMs[0].removeRowAt(0);
+                    GMs[1].removeRowAt(0);
+                    GMs[2].removeRowAt(0);
+
+                    GMs[0].filterDupliacate();
+                    GMs[1].filterDupliacate();
+                    GMs[2].filterVax();
+
+                    while (!GMs[2].isEmpty())
                     {
-                        foreach (Row row in gridFile.rowList)
-                            sw.WriteLine(row.ToString());
+                        Row tempRow = new Row();
+                        Row vaxRow = GMs[2].popFirst();
+
+                        currentID = vaxRow.columns[0];
+                        bool skip = false;
+
+
+                        //handle data
+                        Row dataRow = GMs[0].popFirst();
+                        Task t1 = Task.Run(() =>
+                        {
+                            while (dataRow != null && dataRow.columns[0].CompareTo(currentID) != 0 && !skip)
+                            {
+                                if (GMs[0].rowList.Count > 1 && Int32.Parse(GMs[0].rowList[0].columns[0]) > Int32.Parse(currentID))
+                                {
+                                    skip = true;
+                                    break;
+                                }
+                                else
+                                    dataRow = GMs[0].popFirst();
+                            }
+                        });
+
+                        //handle symtom data
+                        Row symtomRow = GMs[1].popFirst();
+                        Task t2 = Task.Run(() =>
+                        {
+                            while (symtomRow != null && symtomRow.columns[0].CompareTo(currentID) != 0 && !skip)
+                            {
+                                if (GMs[1].rowList.Count > 1 && Int32.Parse(GMs[1].rowList[0].columns[0]) > Int32.Parse(currentID))
+                                {
+                                    skip = true;
+                                    break;
+                                }
+                                else
+                                    symtomRow = GMs[1].popFirst();
+                            }
+                        });
+
+                        
+                        t1.Wait();
+                        t2.Wait();
+
+                        if (dataRow == null || symtomRow == null)
+                            break;
+
+                        if (!skip)
+                        {
+                            tempRow.addData(dataRow.ToString());
+                            vaxRow.columns.RemoveAt(0);
+                            tempRow.addData(vaxRow.ToString());
+                            symtomRow.columns.RemoveAt(0);
+                            tempRow.addData(symtomRow.ToString());
+                            //Console.WriteLine(tempRow);
+                            GM.addRow(tempRow);
+                        }
                     }
+
+                    GMs.RemoveAt(2);
+                    GMs.RemoveAt(1);
+                    GMs.RemoveAt(0);
                 }
-                
-                return true;
+                while (GMs.Count >= 3);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return false;
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public void writeCSVFile(String absolutePath)
+        {
+            //write GM to a file
+            using (StreamWriter sw = new StreamWriter(absolutePath))
+            {
+                foreach (Row row in GM.rowList)
+                {
+                    sw.WriteLine(row.ToString());
+                    row.clear();
+                }
             }
         }
     }

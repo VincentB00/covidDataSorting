@@ -41,6 +41,7 @@ namespace covidDataSorting
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.DebugConsole = new System.Windows.Forms.RichTextBox();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -66,6 +67,7 @@ namespace covidDataSorting
             this.CSVFileList.Name = "CSVFileList";
             this.CSVFileList.Size = new System.Drawing.Size(297, 460);
             this.CSVFileList.TabIndex = 1;
+            this.CSVFileList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CSVFileList_KeyDown);
             // 
             // openFileDialog1
             // 
@@ -95,6 +97,7 @@ namespace covidDataSorting
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label1);
             this.tabPage1.Controls.Add(this.debugLabel);
             this.tabPage1.Controls.Add(this.openNewFileButton);
             this.tabPage1.Controls.Add(this.absolutePathLabel);
@@ -167,6 +170,17 @@ namespace covidDataSorting
             this.saveFileDialog1.Filter = "\"CSV Files(*.csv)|*.csv|Text files (*.txt)|*.txt|All files (*.*)|*.*\"";
             this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(803, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(343, 120);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Note:\r\nplease input file in order with group of 3:\r\n1. Data file\r\n2. Symtom file\r" +
+    "\n3. Vax file";
+            // 
             // MainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -197,6 +211,7 @@ namespace covidDataSorting
         private System.Windows.Forms.Button openNewFileButton;
         private System.Windows.Forms.Label absolutePathLabel;
         private System.Windows.Forms.Label debugLabel;
+        private System.Windows.Forms.Label label1;
     }
 }
 
