@@ -14,6 +14,12 @@ namespace covidDataSorting
             columns = new List<string>();
         }
 
+        public int getIDColumn()
+        {
+            //assume that id column is alway at column 1
+            return Int32.Parse(columns[0]);
+        }
+
         public void addData(String line)
         {
             List<String> lineList = Row.splitCSVData(line);
@@ -54,7 +60,12 @@ namespace covidDataSorting
 
                 //Console.WriteLine("current String: " + currentString);
 
+
                 if (currentString.IndexOf('\"') < 0)
+                {
+                    line = line.Substring(line.IndexOf(',') + 1);
+                }
+                else if (currentString.First() == '\"' && currentString.Last() == '\"')
                 {
                     line = line.Substring(line.IndexOf(',') + 1);
                 }
@@ -92,26 +103,36 @@ namespace covidDataSorting
         public static int getIndexNextQoute(String data)
         {
             bool skip = false;
-            int index = data.IndexOf('\"');
+            int index = data.IndexOf("\"");
             while (!skip)
             {
-                index = data.IndexOf('\"');
+
+                index = data.IndexOf("\"");
+
                 if (data.Length == index + 1)
                 {
                     return index;
                 }
 
-                if (data[index + 1] == '\"')
+                index = data.IndexOf("\",");
+
+                if (index < 0)
+                    return index;
+                else if (data[index - 1] == '\"' && data[index - 2] == '\"')
                 {
-                    data = data.Substring(0, index) + "00" + data.Substring(index + 2);
+                    return index;
+                }
+                else if (data[index - 1] == '\"')
+                {
+                    data = data.Substring(0, index - 1) + "00" + data.Substring(index + 1);
                     skip = false;
                 }
                 else
                 {
-                    skip = true;
                     return index;
                 }
             }
+
             return index;
         }
     }

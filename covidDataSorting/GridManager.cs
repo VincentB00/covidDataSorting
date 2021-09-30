@@ -8,19 +8,19 @@ namespace covidDataSorting
 {
     public class GridManager
     {
-        public int maxColumn; // index of max column
-        public int maxRow;  // index of max row
+        public int maxColumnIndex; // index of max column
+        public int maxRowIndex;  // index of max row
         public List<Row> rowList;
         public GridManager()
         {
             rowList = new List<Row>();
-            maxColumn = -1;
-            maxRow = -1;
+            maxColumnIndex = -1;
+            maxRowIndex = -1;
         }
 
         public bool isEmpty()
         {
-            if (maxRow < 0 || rowList.Count <= 0)
+            if (maxRowIndex < 0 || rowList.Count <= 0)
                 return true;
             else
                 return false;
@@ -28,7 +28,7 @@ namespace covidDataSorting
 
         public void addHeader(String headers)
         {
-            if(maxRow < 0)
+            if(maxRowIndex < 0)
             {
                 List<String> headerList = Row.splitCSVData(headers);
 
@@ -36,8 +36,8 @@ namespace covidDataSorting
 
                 rowList[0].addData(headers);
                 
-                maxRow++;
-                maxColumn = headerList.Count - 1;
+                maxRowIndex++;
+                maxColumnIndex = headerList.Count - 1;
             }
             else
             {
@@ -51,7 +51,7 @@ namespace covidDataSorting
 
                 numberOfAddedColumn = row.columns.Count;
 
-                maxColumn += numberOfAddedColumn;
+                maxColumnIndex += numberOfAddedColumn;
             }
         }
 
@@ -62,9 +62,9 @@ namespace covidDataSorting
 
         public void addRow(String line)
         {
-            maxRow++;
+            maxRowIndex++;
             rowList.Add(new Row());
-            rowList[maxRow].addData(line);
+            rowList[maxRowIndex].addData(line);
         }
 
         public void addRowData(String line, int rowIndex)
@@ -75,13 +75,13 @@ namespace covidDataSorting
         public void removeRowAt(int index)
         {
             rowList.RemoveAt(index);
-            maxRow--;
+            maxRowIndex--;
         }
 
         public String getHeader()
         {
             String result = "";
-            if (maxRow >= 0)
+            if (maxRowIndex >= 0)
             {
                 result = rowList[0].ToString();
             }
@@ -90,7 +90,7 @@ namespace covidDataSorting
 
         public String getData(int column, int row)
         {
-            if (column > this.maxColumn && row > this.maxRow)
+            if (column > this.maxColumnIndex && row > this.maxRowIndex)
                 return null;
             else
                 return rowList[row].columns[column];
@@ -98,7 +98,7 @@ namespace covidDataSorting
 
         public bool setData(int column, int row, String data)
         {
-            if (column > this.maxColumn && row > this.maxRow)
+            if (column > this.maxColumnIndex && row > this.maxRowIndex)
                 return false;
             else
             {
@@ -168,12 +168,13 @@ namespace covidDataSorting
             foreach (int rowIndex in removeList)
             {
                 rowList.RemoveAt(rowIndex);
-                maxRow--;
+                maxRowIndex--;
             }
 
             return tempList;
         }
 
+        //---------------------------------------task 1 function-------------------------------
         public void filterVax()
         {
             List<Row> newRowList = new List<Row>();
@@ -194,7 +195,7 @@ namespace covidDataSorting
 
         public void filterDupliacate()
         {
-            Console.WriteLine("before filter dup: " + rowList.Count);
+            //Console.WriteLine("before filter dup: " + rowList.Count);
 
             List<int> indexList = new List<int>();
             List<Row> newRowList = new List<Row>();
@@ -221,7 +222,204 @@ namespace covidDataSorting
             rowList.Clear();
             rowList = newRowList;
 
-            Console.WriteLine("after filter dup: " + rowList.Count);
+            //Console.WriteLine("after filter dup: " + rowList.Count);
         }
+
+        //--------------------------------task 2 function----------------------------------------
+        public void suffleRowList()
+        {
+            Random random = new Random();
+            RowDataSet rds = new RowDataSet(rowList);
+
+            for(int count = 0; count < rowList.Count; count++)
+            {
+                int ranNum1 = random.Next(0, rowList.Count);
+                int ranNum2 = random.Next(0, rowList.Count);
+
+                if(ranNum1 != ranNum2 && ranNum1 != 0 && ranNum2 != 0)
+                {
+                    rds.swap(ranNum1, ranNum2);
+                }
+            }
+
+            List<Row> newRowList = rds.getCopyOfCurrentRowListOrder();
+            rowList.Clear();
+            rowList = newRowList;
+        }
+        public void filterColumn(List<int> columns)
+        {
+            List<int> errorIndex = new List<int>();
+            for(int count = 0; count < rowList.Count; count++)
+            {
+                try
+                {
+                    Row rowT = new Row();
+                    foreach (int index in columns)
+                    {
+                        rowT.columns.Add(rowList[count].columns[index]);
+                    }
+                    rowList[count].columns = rowT.columns;
+                }
+                catch(Exception ex)
+                {
+                    errorIndex.Add(count);
+                }
+            }
+
+            errorIndex.Reverse();
+
+            foreach (int index in errorIndex)
+            {
+                //Console.WriteLine("removing row: " + rowList[index].columns[0]);
+                rowList.RemoveAt(index);
+            }
+
+            maxColumnIndex = rowList[0].columns.Count - 1;
+        }
+
+        public void splitColumn(List<int> columns)
+        {
+            columns.Reverse();
+            int currentIndex = 0;
+            List<Row> newRowList = new List<Row>();
+            Row tempRow = rowList[currentIndex];
+
+            //Modify Header
+            tempRow.columns[columns.Last()] = "SYMPTOM";
+
+            foreach(int column in columns)
+            if(column != columns.Last()) //discount the last index
+            {
+                tempRow.columns.RemoveAt(column);
+            }
+
+            newRowList.Add(tempRow);
+
+            //modify data //need fix here
+            currentIndex++;
+            while(currentIndex < rowList.Count)
+            {
+                List<Row> splitedRowList = splitColumnToRow(currentIndex, columns);
+                foreach (Row row in splitedRowList)
+                    newRowList.Add(row);
+                
+                currentIndex++;
+            }
+
+            rowList.Clear();
+            rowList = newRowList;
+
+            maxColumnIndex = rowList[0].columns.Count - 1;
+            maxRowIndex = rowList.Count - 1;
+        }
+
+        public List<Row> splitColumnToRow(int index, List<int> columns)
+        {
+            //this will work if columns is already Reverse
+
+            List<Row> tempRowList = new List<Row>();
+            //Row pointerRow = rowList[index];
+            Row pointerRow = new Row();
+            copyRow(rowList[index], pointerRow);
+
+            Row tempRow = new Row();
+            copyRow(pointerRow, tempRow);
+            //Row tempRow = pointerRow;
+            foreach (int column in columns)
+            {
+                if(column != columns.Last()) //skip first column
+                {
+                    tempRow.columns.RemoveAt(column);
+                }
+            }
+            foreach(int column in columns)//here is the problem
+            {
+                String data = pointerRow.columns[column].ToString();
+                if (data.CompareTo("") != 0 && data != null)
+                {
+                    Row row = new Row();
+                    tempRow.columns[columns.Last()] = data;
+                    copyRow(tempRow, row);
+                    tempRowList.Add(row);
+                }
+            }
+
+            return tempRowList;
+        }
+
+        private void copyRow(Row row1, Row row2)
+        {
+            foreach (String data in row1.columns)
+                row2.columns.Add(data);
+        }
+
+        public void QuickSort(RowDataSet rds, int l, int r)
+        {
+            if (l < r)
+            {
+                int p = Partition(rds, l, r);
+
+                QuickSort(rds, l, p - 1);
+                QuickSort(rds, p + 1, r);
+            }
+        }
+
+        public static int Partition(RowDataSet rds, int l, int r)
+        {
+            int pivot = rds.getData(r).getIDColumn();
+
+            int i = l - 1;
+
+            for (int j = l; j <= r - 1; j++)
+            {
+                if (rds.getData(j).getIDColumn() < pivot)
+                {
+                    i++;
+                    rds.swap(i, j);
+                }
+            }
+
+            rds.swap(i + 1, r);
+
+            return i + 1;
+        }
+
+        public void InsertionSort(RowDataSet rds)
+        {
+            for (int i = 1; i < rds.orderList.Count; i++)
+            {
+                int j = i;
+                
+                while (j > 0 && rds.getData(j - 1).getIDColumn() > rds.getData(j).getIDColumn())
+                {
+                    rds.swap(j, j - 1);
+                    j = j - 1;
+                }
+            }
+        }
+
+        public void SelectionSort(RowDataSet rds)
+        {
+            int max = rds.orderList.Count;
+            for(int j = 0; j < max - 1; j++)
+            {
+                int iMin = j;
+                for(int i = j + 1; i < max; i++)
+                {
+                    if(rds.getData(i).getIDColumn() < rds.getData(iMin).getIDColumn())
+                    {
+                        iMin = i;
+                    }
+                }
+                if (iMin != j)
+                {
+                    rds.swap(j, iMin);
+                }
+            }
+        }
+
+        //--------------------------------task 3 function----------------------------------------
+
+
     }
 }

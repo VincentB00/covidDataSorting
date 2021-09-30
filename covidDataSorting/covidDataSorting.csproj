@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="Column.cs" />
     <Compile Include="CSVFileManager.cs" />
+    <Compile Include="RowDataSet.cs" />
     <Compile Include="FileLocation.cs" />
     <Compile Include="GridManager.cs" />
     <Compile Include="MainMenu.cs">

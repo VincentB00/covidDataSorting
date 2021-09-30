@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace covidDataSorting
 {
-    class FileLocation
+    public class FileLocation
     {
         public string fileName;
         public string absolutePath;

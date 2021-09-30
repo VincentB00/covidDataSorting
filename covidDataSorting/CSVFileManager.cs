@@ -57,7 +57,6 @@ namespace covidDataSorting
                 //now add the data for each groupd of 3 file
                 do
                 {
-                    Console.WriteLine(GMs.Count);
                     //loop variable
                     String currentID;
 
@@ -135,6 +134,23 @@ namespace covidDataSorting
                     GMs.RemoveAt(0);
                 }
                 while (GMs.Count >= 3);
+
+                //fillter out minor error line
+                List<int> errorData = new List<int>();
+                for(int count = 0; count < GM.rowList.Count; count++)
+                {
+                    if (GM.rowList[count].columns.Count != GM.maxColumnIndex + 1)
+                        errorData.Add(count);
+                }
+
+                errorData.Reverse();
+                foreach (int index in errorData)
+                {
+                    //Console.WriteLine("Remove: " + GM.rowList[index]);
+                    GM.rowList.RemoveAt(index);
+                }
+                    
+
             }
             catch (Exception ex)
             {
@@ -151,7 +167,30 @@ namespace covidDataSorting
                 foreach (Row row in GM.rowList)
                 {
                     sw.WriteLine(row.ToString());
-                    row.clear();
+                }
+            }
+        }
+
+        public void writeCSVFile(String absolutePath, int GMsIndex)
+        {
+            //write GM to a file
+            using (StreamWriter sw = new StreamWriter(absolutePath))
+            {
+                foreach (Row row in GMs[GMsIndex].rowList)
+                {
+                    sw.WriteLine(row.ToString());
+                }
+            }
+        }
+
+        public void writeCSVFile(String absolutePath, int GMsIndex, List<int> orderList)
+        {
+            //write GM to a file
+            using (StreamWriter sw = new StreamWriter(absolutePath))
+            {
+                foreach(int index in orderList)
+                {
+                    sw.WriteLine(GMs[GMsIndex].rowList[index].ToString());
                 }
             }
         }
