@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace covidDataSorting
 {
-    public class GridManager
+    public class GridManager : IDisposable
     {
         public int maxColumnIndex; // index of max column
         public int maxRowIndex;  // index of max row
         public List<Row> rowList;
+        private bool disposedValue;
+
         public GridManager()
         {
             rowList = new List<Row>();
@@ -353,7 +355,7 @@ namespace covidDataSorting
                 row2.columns.Add(data);
         }
 
-        public void QuickSort(RowDataSet rds, int l, int r)
+        public static void QuickSort(RowDataSet rds, int l, int r)
         {
             if (l < r)
             {
@@ -384,7 +386,7 @@ namespace covidDataSorting
             return i + 1;
         }
 
-        public void InsertionSort(RowDataSet rds)
+        public static void InsertionSort(RowDataSet rds)
         {
             for (int i = 1; i < rds.orderList.Count; i++)
             {
@@ -398,7 +400,7 @@ namespace covidDataSorting
             }
         }
 
-        public void SelectionSort(RowDataSet rds)
+        public static void SelectionSort(RowDataSet rds)
         {
             int max = rds.orderList.Count;
             for(int j = 0; j < max - 1; j++)
@@ -419,7 +421,87 @@ namespace covidDataSorting
         }
 
         //--------------------------------task 3 function----------------------------------------
+        public List<int> groupByAge(int minAge, int maxAge)
+        {
+            List<int> rowIndexs = new List<int>();
+            for(int count = 0; count < rowList.Count; count++)
+            {
+                String ageStr = rowList[count].columns[1];
+                if(ageStr != null && ageStr.CompareTo("") != 0 && ageStr.CompareTo("AGE_YRS") != 0)
+                {
+                    float currentAge = float.Parse(ageStr);
+                    if(currentAge >= minAge && currentAge <= maxAge)
+                    {
+                        rowIndexs.Add(count);
+                    }
+                }
+                else if((ageStr == null || ageStr.CompareTo("") == 0) && (minAge == -1 && maxAge == -1))
+                {
+                    rowIndexs.Add(count);
+                }
+            }
+
+            return rowIndexs;
+        }
+
+        public List<int> groupByColumn(List<int> range, int column, String compareWith)
+        {
+            List<int> rowIndexs = new List<int>();
+
+            foreach(int index in range)
+            {
+                if (rowList[index].columns[column].CompareTo(compareWith) == 0)
+                    rowIndexs.Add(index);
+            }
+
+            return rowIndexs;
+        }
+
+        public int calculateNumberOfDeathCases()
+        {
+            int result = 0;
+            RowDataSet rds = new RowDataSet(rowList);
+            List<int> allDeathRow = groupByColumn(rds.orderList, 6, "Y");
+
+            using(var tempGM = new GridManager())
+            {
+                foreach (int index in allDeathRow)
+                {
+                    tempGM.addRow(rowList[index].ToString());
+                }
+
+                tempGM.filterDupliacate();
+
+                result = tempGM.rowList.Count;
+            }
+
+            return result;
+        }
 
 
+        //-----------------------------------------------------------------------------------------------------
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    rowList.Clear();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

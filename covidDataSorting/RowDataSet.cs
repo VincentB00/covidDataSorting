@@ -22,6 +22,12 @@ namespace covidDataSorting
             }
         }
 
+        public RowDataSet(List<Row> rowList, List<int> orderList)
+        {
+            this.rowList = rowList;
+            this.orderList = orderList;
+        }
+
         public Row getData(int index)
         {
             return rowList[orderList[index]];

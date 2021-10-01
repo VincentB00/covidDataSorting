@@ -17,7 +17,10 @@ namespace covidDataSorting
     {
         //task 2 variable
         CSVFileManager FM;
-        
+
+        //task 3 variable
+        List<Group> groupList;
+
 
         //class variable
         FileLocation newCSVFileLocation;
@@ -119,11 +122,48 @@ namespace covidDataSorting
             }
         }
 
+        private void displayGroupTree()
+        {
+            treeView1.Nodes.Clear();
 
-        private void printDebug(String data)
+            foreach (Group group in groupList)
+            {
+                treeView1.Nodes.Add(group.name);
+                displayGroupNode(group, treeView1.Nodes[treeView1.Nodes.Count - 1]);
+            }
+        }
+
+        private void displayGroupNode(Group group, TreeNode treeNode)
+        {
+
+            if (group.childGroupList == null)
+                return;
+
+            foreach (Group child in group.childGroupList)
+            {
+                treeNode.Nodes.Add(child.name);
+                TreeNode nextTreeNode = treeNode.Nodes[treeNode.Nodes.Count - 1];
+                displayGroupNode(child, nextTreeNode);
+            }
+        }
+
+        private int getTreeNodeRootIndex(TreeNode treeNode)
+        {
+            if (treeNode.Parent == null)
+            {
+                return treeNode.Index;
+            }
+            else
+            {
+                return getTreeNodeRootIndex(treeNode.Parent);
+            }
+        }
+
+
+        private void printDebug(Object data)
         {
             tabControl1.SelectedIndex = 3;
-            DebugConsole.AppendText(DateTime.Now + " --> " + data);
+            DebugConsole.AppendText(DateTime.Now + " --> " + data.ToString() + "\n");
         }
 
         //------------------------------------------------------------------------------------------------------
@@ -187,8 +227,6 @@ namespace covidDataSorting
                 });
                 t2.Wait();
 
-                absolutePathLabel.Text = newCSVFileLocation.fileName;
-
                 debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFileLocation.absolutePath;
 
                 Task t3 = Task.Run(() => {
@@ -207,6 +245,7 @@ namespace covidDataSorting
         private void saveFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
             newCSVFileLocation = new FileLocation(sender.ToString().Substring(sender.ToString().IndexOf("FileName:") + "FileName: ".Length));
+            absolutePathLabel.Text = newCSVFileLocation.fileName;
         }
 
         private void openNewFileButton_Click(object sender, EventArgs e)
@@ -244,7 +283,7 @@ namespace covidDataSorting
                     return;
                 }
 
-                label2.Text = newCSVFileLocation.fileName;
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
 
                 debugLabel.Text = "Job Done";
 
@@ -298,8 +337,6 @@ namespace covidDataSorting
                 t3.Wait();
 
                 debugLabel.Text = "Job Done";
-
-                label2.Text = "N/A";
             }
         }
 
@@ -324,7 +361,11 @@ namespace covidDataSorting
                     return;
                 }
 
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
+
                 label4.Text = newCSVFileLocation.fileName;
+
+                label2.Text = newCSVFileLocation.fileName;
 
                 debugLabel.Text = "Job Done";
             }
@@ -359,14 +400,14 @@ namespace covidDataSorting
 
                     clock.Start();
 
-                    FM.GMs[0].QuickSort(rds, 1, rds.rowList.Count - 1);
+                    GridManager.QuickSort(rds, 1, rds.rowList.Count - 1);
 
                     stopClock = true;
 
                     FM.writeCSVFile(tempFileLocation.absolutePath, 0, rds.orderList);
                 });
 
-
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
 
             }
         }
@@ -403,7 +444,7 @@ namespace covidDataSorting
 
                     rds.orderList.RemoveAt(0);
 
-                    FM.GMs[0].InsertionSort(rds);
+                    GridManager.InsertionSort(rds);
 
                     rds.orderList.Insert(0, 0);
 
@@ -411,6 +452,8 @@ namespace covidDataSorting
 
                     FM.writeCSVFile(tempFileLocation.absolutePath, 0, rds.orderList);
                 });
+
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
 
             }
         }
@@ -447,7 +490,7 @@ namespace covidDataSorting
 
                     rds.orderList.RemoveAt(0);
 
-                    FM.GMs[0].SelectionSort(rds);
+                    GridManager.SelectionSort(rds);
 
                     rds.orderList.Insert(0, 0);
 
@@ -456,7 +499,260 @@ namespace covidDataSorting
                     FM.writeCSVFile(tempFileLocation.absolutePath, 0, rds.orderList);
                 });
 
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
+
             }
+        }
+
+        private void groupFileButton_Click(object sender, EventArgs e)
+        {
+            bool doneFiltering = false;
+            groupList = new List<Group>();
+
+            bool stopClock = false;
+            int h = 0, m = 0, s = 0;
+
+            Task clock = new Task(() =>
+            {
+                while (!stopClock)
+                {
+                    label3.Invoke((MethodInvoker)delegate ()
+                    {
+                        label3.Text = nextSecondTick(ref h, ref m, ref s);
+                    });
+
+                    wait(1000);
+                }
+            });
+
+            debugLabel.Text = "Begin Grouping data tree";
+
+            clock.Start();
+
+            Task t1 = Task.Run(() =>
+            {
+                groupData("age: < 1", 0, 1);
+
+                groupData("age: 1 - 3", 1, 3);
+
+                groupData("age: 4 - 11", 4, 11);
+
+                groupData("age: 12 - 18", 12, 18);
+
+                groupData("age: 19 - 30", 19, 30);
+
+                groupData("age: 31 - 40", 31, 40);
+
+                groupData("age: 41 - 50", 41, 50);
+
+                groupData("age: 51 - 60", 51, 60);
+
+                groupData("age: 61 - 70", 61, 70);
+
+                groupData("age: 71 - 80", 71, 80);
+
+                groupData("age: > 80", 81, 120);
+
+                groupData("age: N/A", -1, -1);
+
+                doneFiltering = true;
+
+                stopClock = true;
+
+                int numberOfDeathCases = FM.GMs[0].calculateNumberOfDeathCases();
+
+                //Number of death cases: ...
+                label5.Invoke((MethodInvoker)delegate ()
+                {
+                    label5.Text = "Number of death cases: " + numberOfDeathCases;
+                });
+            });
+
+            Task t2 = Task.Run(() =>
+            {
+                while(true)
+                {
+                    if(doneFiltering)
+                    {
+                        debugLabel.Invoke((MethodInvoker)delegate ()
+                        {
+                            debugLabel.Text = "Begin displaying tree";
+                            displayGroupTree();
+                            debugLabel.Text = "job done";
+                        });
+                        break;
+                    }
+                    else
+                    {
+                        wait(1000);
+                    }
+                }
+            });
+
+            
+        }
+
+        private void groupData(String name, int minAge, int maxAge)
+        {
+            groupList.Add(new Group(name));
+            int groupRootIndex = groupList.Count - 1;
+
+            //group by age
+            List<int> ageGroupList = FM.GMs[0].groupByAge(minAge, maxAge);
+            groupList[groupRootIndex].copyOrderList(ageGroupList);
+
+            //group by male
+            groupList[groupRootIndex].addChildGroup("Gender: M");
+            List<int> maleGenderList = FM.GMs[0].groupByColumn(ageGroupList, 2, "M");
+            groupList[groupRootIndex].search("Gender: M").copyOrderList(maleGenderList);
+
+            //group by female
+            groupList[groupRootIndex].addChildGroup("Gender: F");
+            List<int> femaleGroupList = FM.GMs[0].groupByColumn(ageGroupList, 2, "F");
+            groupList[groupRootIndex].search("Gender: F").copyOrderList(femaleGroupList);
+
+            //group by N/A
+            groupList[groupRootIndex].addChildGroup("Gender: N/A");
+            List<int> nullGenderGroupList = FM.GMs[0].groupByColumn(ageGroupList, 2, "");
+            groupList[groupRootIndex].search("Gender: N/A").copyOrderList(nullGenderGroupList);
+
+            //group by vacince name
+            foreach (Group group in groupList[groupRootIndex].childGroupList)
+            {
+                RowDataSet rds = new RowDataSet(FM.GMs[0].rowList, group.rowOrderList);
+                List<String> vacinceNameList = getAllVaxName(rds);
+                foreach(String vacinceName in vacinceNameList)
+                {
+                    group.addChildGroup(vacinceName);
+                    group.childGroupList.Last().copyOrderList(FM.GMs[0].groupByColumn(group.rowOrderList, 3, vacinceName));
+                }
+            }
+
+            //group by symtom name
+            foreach (Group outerGroup in groupList[groupRootIndex].childGroupList)
+            {
+                if(outerGroup.childGroupList != null)
+                    foreach(Group group in outerGroup.childGroupList)
+                    {
+                        RowDataSet rds = new RowDataSet(FM.GMs[0].rowList, group.rowOrderList);
+                        List<String> symtomNameList = getAllSymtomName(rds);
+                        foreach (String symtomName in symtomNameList)
+                        {
+                            group.addChildGroup(symtomName);
+                            group.childGroupList.Last().copyOrderList(FM.GMs[0].groupByColumn(group.rowOrderList, 5, symtomName));
+                        }
+                    }
+            }
+        }
+
+        private void exportToCSVFileButton_Click(object sender, EventArgs e)
+        {
+            TreeNode currentSelectedNode = treeView1.SelectedNode;
+
+            var dialog = saveFileDialog1.ShowDialog();
+
+            if(dialog == DialogResult.OK && currentSelectedNode != null)
+            {
+                int rootIndex = getTreeNodeRootIndex(currentSelectedNode);
+                String groupName = currentSelectedNode.Text;
+
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
+
+                Group currentGroup = groupList[rootIndex].search(groupName);
+
+                if (currentGroup.rowOrderList.Count <= 0)
+                {
+                    currentGroup.rowOrderList = new List<int>();
+                    currentGroup.rowOrderList.Add(0);
+                }
+                else if(currentGroup.rowOrderList.First() != 0)
+                    currentGroup.rowOrderList.Insert(0, 0);
+
+                FM.writeCSVFile(newCSVFileLocation.absolutePath, 0, currentGroup.rowOrderList);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //RowDataSet rds = new RowDataSet(FM.GMs[0].rowList);
+
+            //List<String> nameList = getAllSymtomName(rds);
+
+            //foreach (String name in nameList)
+            //    printDebug(name);
+
+            //TreeNode currentSelectedNode = treeView1.SelectedNode;
+
+            //int rootIndex = getTreeNodeRootIndex(currentSelectedNode);
+            //String groupName = currentSelectedNode.Text;
+
+            //Group currentGroup = groupList[rootIndex].search(groupName);
+
+            //printDebug(rootIndex);
+            //printDebug(currentGroup.name);
+
+            TreeNode currentSelectedNode = treeView1.SelectedNode;
+
+            int rootIndex = getTreeNodeRootIndex(currentSelectedNode);
+            String groupName = currentSelectedNode.Text;
+
+            Group currentGroup = groupList[rootIndex].search(groupName);
+
+            if (currentGroup.rowOrderList.Count <= 0)
+            {
+                currentGroup.rowOrderList = new List<int>();
+                currentGroup.rowOrderList.Add(0);
+            }
+            else if (currentGroup.rowOrderList.First() != 0)
+                currentGroup.rowOrderList.Insert(0, 0);
+
+            foreach(int index in currentGroup.rowOrderList)
+            {
+                printDebug(FM.GMs[0].rowList[index]);
+            }
+
+        }
+
+        private List<String> getAllVaxName(RowDataSet rds)
+        {
+            List<String> nameList = new List<string>();
+
+            foreach(int index in rds.orderList)
+            {
+                Row row = rds.rowList[index];
+                String currentVaxName = row.columns[3];
+                bool isInList = false;
+                foreach (String name in nameList)
+                {
+                    if (name.CompareTo(currentVaxName) == 0)
+                        isInList = true;
+                }
+                if (!isInList)
+                    nameList.Add(currentVaxName);
+            }
+
+            return nameList;
+        }
+
+        private List<String> getAllSymtomName(RowDataSet rds)
+        {
+            List<String> symtomList = new List<String>();
+
+            foreach (int index in rds.orderList)
+            {
+                Row row = rds.rowList[index];
+                String currentSymtomName = row.columns[5];
+                bool isInList = false;
+                foreach (String name in symtomList)
+                {
+                    if (name.CompareTo(currentSymtomName) == 0)
+                        isInList = true;
+                }
+                if (!isInList)
+                    symtomList.Add(currentSymtomName);
+            }
+
+            return symtomList;
         }
     }
 }

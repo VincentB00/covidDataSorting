@@ -37,8 +37,9 @@ namespace covidDataSorting
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.combineRunTimeLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.absolutePathLabel = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.selectionSortButton = new System.Windows.Forms.Button();
+            this.selectionSortTimerLabel = new System.Windows.Forms.Label();
             this.insertionSortTimerLabel = new System.Windows.Forms.Label();
             this.quickSortTimerLabel = new System.Windows.Forms.Label();
             this.suffleCheckBox = new System.Windows.Forms.CheckBox();
@@ -48,18 +49,26 @@ namespace covidDataSorting
             this.browseTask2FileButton = new System.Windows.Forms.Button();
             this.filterTask1Button = new System.Windows.Forms.Button();
             this.browseTask1Button = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.exportToCSVFileButton = new System.Windows.Forms.Button();
+            this.groupFileButton = new System.Windows.Forms.Button();
+            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.browseTask2FileButton2 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.DebugConsole = new System.Windows.Forms.RichTextBox();
+            this.absolutePathLabel = new System.Windows.Forms.Label();
             this.openNewFileButton = new System.Windows.Forms.Button();
             this.debugLabel = new System.Windows.Forms.Label();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.selectionSortTimerLabel = new System.Windows.Forms.Label();
-            this.selectionSortButton = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -117,7 +126,6 @@ namespace covidDataSorting
             // 
             this.tabPage1.Controls.Add(this.combineRunTimeLabel);
             this.tabPage1.Controls.Add(this.label1);
-            this.tabPage1.Controls.Add(this.absolutePathLabel);
             this.tabPage1.Controls.Add(this.CSVFileList);
             this.tabPage1.Controls.Add(this.combineCSVFileButton);
             this.tabPage1.Controls.Add(this.browseCSVButton);
@@ -133,7 +141,7 @@ namespace covidDataSorting
             // 
             this.combineRunTimeLabel.AutoSize = true;
             this.combineRunTimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.combineRunTimeLabel.Location = new System.Drawing.Point(309, 130);
+            this.combineRunTimeLabel.Location = new System.Drawing.Point(309, 105);
             this.combineRunTimeLabel.Name = "combineRunTimeLabel";
             this.combineRunTimeLabel.Size = new System.Drawing.Size(127, 25);
             this.combineRunTimeLabel.TabIndex = 8;
@@ -150,16 +158,6 @@ namespace covidDataSorting
             this.label1.Text = "Note:\r\nplease input file in order with group of 3:\r\n1. Data file\r\n2. Symtom file\r" +
     "\n3. Vax file";
             // 
-            // absolutePathLabel
-            // 
-            this.absolutePathLabel.AutoSize = true;
-            this.absolutePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.absolutePathLabel.Location = new System.Drawing.Point(310, 106);
-            this.absolutePathLabel.Name = "absolutePathLabel";
-            this.absolutePathLabel.Size = new System.Drawing.Size(42, 24);
-            this.absolutePathLabel.TabIndex = 3;
-            this.absolutePathLabel.Text = "N/A";
-            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.selectionSortButton);
@@ -173,7 +171,6 @@ namespace covidDataSorting
             this.tabPage3.Controls.Add(this.browseTask2FileButton);
             this.tabPage3.Controls.Add(this.filterTask1Button);
             this.tabPage3.Controls.Add(this.browseTask1Button);
-            this.tabPage3.Controls.Add(this.label2);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(1152, 440);
@@ -181,11 +178,32 @@ namespace covidDataSorting
             this.tabPage3.Text = "Task 2";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // selectionSortButton
+            // 
+            this.selectionSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.selectionSortButton.Location = new System.Drawing.Point(7, 159);
+            this.selectionSortButton.Name = "selectionSortButton";
+            this.selectionSortButton.Size = new System.Drawing.Size(249, 35);
+            this.selectionSortButton.TabIndex = 13;
+            this.selectionSortButton.Text = "Selection Sort";
+            this.selectionSortButton.UseVisualStyleBackColor = true;
+            this.selectionSortButton.Click += new System.EventHandler(this.selectionSortButton_Click);
+            // 
+            // selectionSortTimerLabel
+            // 
+            this.selectionSortTimerLabel.AutoSize = true;
+            this.selectionSortTimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.selectionSortTimerLabel.Location = new System.Drawing.Point(3, 197);
+            this.selectionSortTimerLabel.Name = "selectionSortTimerLabel";
+            this.selectionSortTimerLabel.Size = new System.Drawing.Size(42, 24);
+            this.selectionSortTimerLabel.TabIndex = 12;
+            this.selectionSortTimerLabel.Text = "N/A";
+            // 
             // insertionSortTimerLabel
             // 
             this.insertionSortTimerLabel.AutoSize = true;
             this.insertionSortTimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.insertionSortTimerLabel.Location = new System.Drawing.Point(285, 289);
+            this.insertionSortTimerLabel.Location = new System.Drawing.Point(3, 327);
             this.insertionSortTimerLabel.Name = "insertionSortTimerLabel";
             this.insertionSortTimerLabel.Size = new System.Drawing.Size(42, 24);
             this.insertionSortTimerLabel.TabIndex = 10;
@@ -195,7 +213,7 @@ namespace covidDataSorting
             // 
             this.quickSortTimerLabel.AutoSize = true;
             this.quickSortTimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.quickSortTimerLabel.Location = new System.Drawing.Point(3, 289);
+            this.quickSortTimerLabel.Location = new System.Drawing.Point(3, 262);
             this.quickSortTimerLabel.Name = "quickSortTimerLabel";
             this.quickSortTimerLabel.Size = new System.Drawing.Size(42, 24);
             this.quickSortTimerLabel.TabIndex = 9;
@@ -215,9 +233,9 @@ namespace covidDataSorting
             // insertionSortButton
             // 
             this.insertionSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.insertionSortButton.Location = new System.Drawing.Point(289, 251);
+            this.insertionSortButton.Location = new System.Drawing.Point(7, 289);
             this.insertionSortButton.Name = "insertionSortButton";
-            this.insertionSortButton.Size = new System.Drawing.Size(136, 35);
+            this.insertionSortButton.Size = new System.Drawing.Size(249, 35);
             this.insertionSortButton.TabIndex = 7;
             this.insertionSortButton.Text = "Insertion Sort";
             this.insertionSortButton.UseVisualStyleBackColor = true;
@@ -226,9 +244,9 @@ namespace covidDataSorting
             // quickSortButton
             // 
             this.quickSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.quickSortButton.Location = new System.Drawing.Point(7, 251);
+            this.quickSortButton.Location = new System.Drawing.Point(7, 224);
             this.quickSortButton.Name = "quickSortButton";
-            this.quickSortButton.Size = new System.Drawing.Size(119, 35);
+            this.quickSortButton.Size = new System.Drawing.Size(249, 35);
             this.quickSortButton.TabIndex = 6;
             this.quickSortButton.Text = "Quick Sort";
             this.quickSortButton.UseVisualStyleBackColor = true;
@@ -238,7 +256,7 @@ namespace covidDataSorting
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(262, 99);
+            this.label4.Location = new System.Drawing.Point(3, 132);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(42, 24);
             this.label4.TabIndex = 5;
@@ -277,24 +295,84 @@ namespace covidDataSorting
             this.browseTask1Button.UseVisualStyleBackColor = true;
             this.browseTask1Button.Click += new System.EventHandler(this.browseTask1Button_Click);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(262, 17);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(42, 24);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "N/A";
-            // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.label5);
+            this.tabPage4.Controls.Add(this.label3);
+            this.tabPage4.Controls.Add(this.label2);
+            this.tabPage4.Controls.Add(this.button1);
+            this.tabPage4.Controls.Add(this.exportToCSVFileButton);
+            this.tabPage4.Controls.Add(this.groupFileButton);
+            this.tabPage4.Controls.Add(this.treeView1);
+            this.tabPage4.Controls.Add(this.browseTask2FileButton2);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(1152, 440);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Task 3";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(3, 41);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(42, 24);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "N/A";
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(8, 174);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(249, 35);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Test";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // exportToCSVFileButton
+            // 
+            this.exportToCSVFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.exportToCSVFileButton.Location = new System.Drawing.Point(8, 133);
+            this.exportToCSVFileButton.Name = "exportToCSVFileButton";
+            this.exportToCSVFileButton.Size = new System.Drawing.Size(249, 35);
+            this.exportToCSVFileButton.TabIndex = 9;
+            this.exportToCSVFileButton.Text = "Export To CSV File";
+            this.exportToCSVFileButton.UseVisualStyleBackColor = true;
+            this.exportToCSVFileButton.Click += new System.EventHandler(this.exportToCSVFileButton_Click);
+            // 
+            // groupFileButton
+            // 
+            this.groupFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupFileButton.Location = new System.Drawing.Point(7, 68);
+            this.groupFileButton.Name = "groupFileButton";
+            this.groupFileButton.Size = new System.Drawing.Size(249, 35);
+            this.groupFileButton.TabIndex = 8;
+            this.groupFileButton.Text = "Group File";
+            this.groupFileButton.UseVisualStyleBackColor = true;
+            this.groupFileButton.Click += new System.EventHandler(this.groupFileButton_Click);
+            // 
+            // treeView1
+            // 
+            this.treeView1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.treeView1.Location = new System.Drawing.Point(367, 3);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.Size = new System.Drawing.Size(782, 434);
+            this.treeView1.TabIndex = 7;
+            // 
+            // browseTask2FileButton2
+            // 
+            this.browseTask2FileButton2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.browseTask2FileButton2.Location = new System.Drawing.Point(6, 3);
+            this.browseTask2FileButton2.Name = "browseTask2FileButton2";
+            this.browseTask2FileButton2.Size = new System.Drawing.Size(249, 35);
+            this.browseTask2FileButton2.TabIndex = 6;
+            this.browseTask2FileButton2.Text = "Browse and read task 2 file";
+            this.browseTask2FileButton2.UseVisualStyleBackColor = true;
+            this.browseTask2FileButton2.Click += new System.EventHandler(this.browseTask2FileButton_Click);
             // 
             // tabPage2
             // 
@@ -311,9 +389,19 @@ namespace covidDataSorting
             // 
             this.DebugConsole.Location = new System.Drawing.Point(6, 6);
             this.DebugConsole.Name = "DebugConsole";
-            this.DebugConsole.Size = new System.Drawing.Size(1140, 499);
+            this.DebugConsole.Size = new System.Drawing.Size(1140, 428);
             this.DebugConsole.TabIndex = 0;
             this.DebugConsole.Text = "";
+            // 
+            // absolutePathLabel
+            // 
+            this.absolutePathLabel.AutoSize = true;
+            this.absolutePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.absolutePathLabel.Location = new System.Drawing.Point(259, 491);
+            this.absolutePathLabel.Name = "absolutePathLabel";
+            this.absolutePathLabel.Size = new System.Drawing.Size(42, 24);
+            this.absolutePathLabel.TabIndex = 3;
+            this.absolutePathLabel.Text = "N/A";
             // 
             // openNewFileButton
             // 
@@ -344,26 +432,25 @@ namespace covidDataSorting
             this.saveFileDialog1.Filter = "\"CSV Files(*.csv)|*.csv|Text files (*.txt)|*.txt|All files (*.*)|*.*\"";
             this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
             // 
-            // selectionSortTimerLabel
+            // label3
             // 
-            this.selectionSortTimerLabel.AutoSize = true;
-            this.selectionSortTimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.selectionSortTimerLabel.Location = new System.Drawing.Point(585, 289);
-            this.selectionSortTimerLabel.Name = "selectionSortTimerLabel";
-            this.selectionSortTimerLabel.Size = new System.Drawing.Size(42, 24);
-            this.selectionSortTimerLabel.TabIndex = 12;
-            this.selectionSortTimerLabel.Text = "N/A";
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(4, 106);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(135, 24);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Grouping timer";
             // 
-            // selectionSortButton
+            // label5
             // 
-            this.selectionSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.selectionSortButton.Location = new System.Drawing.Point(589, 251);
-            this.selectionSortButton.Name = "selectionSortButton";
-            this.selectionSortButton.Size = new System.Drawing.Size(147, 35);
-            this.selectionSortButton.TabIndex = 13;
-            this.selectionSortButton.Text = "Selection Sort";
-            this.selectionSortButton.UseVisualStyleBackColor = true;
-            this.selectionSortButton.Click += new System.EventHandler(this.selectionSortButton_Click);
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(4, 413);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(230, 24);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Number of death cases: ...";
             // 
             // MainMenu
             // 
@@ -372,6 +459,7 @@ namespace covidDataSorting
             this.ClientSize = new System.Drawing.Size(1184, 561);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.debugLabel);
+            this.Controls.Add(this.absolutePathLabel);
             this.Controls.Add(this.openNewFileButton);
             this.Name = "MainMenu";
             this.Text = "CSV Reader";
@@ -380,6 +468,8 @@ namespace covidDataSorting
             this.tabPage1.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -406,7 +496,6 @@ namespace covidDataSorting
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.Button filterTask1Button;
         private System.Windows.Forms.Button browseTask1Button;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button browseTask2FileButton;
         private System.Windows.Forms.Button insertionSortButton;
@@ -416,6 +505,15 @@ namespace covidDataSorting
         private System.Windows.Forms.Label insertionSortTimerLabel;
         private System.Windows.Forms.Label selectionSortTimerLabel;
         private System.Windows.Forms.Button selectionSortButton;
+        private System.Windows.Forms.Button browseTask2FileButton2;
+        private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Button groupFileButton;
+        private System.Windows.Forms.Button exportToCSVFileButton;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label5;
     }
 }
 
