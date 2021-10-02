@@ -14,10 +14,41 @@ namespace covidDataSorting
             columns = new List<string>();
         }
 
+        public Row(Row row)
+        {
+            columns = new List<string>();
+            foreach (String data in row.columns)
+                columns.Add(data);
+        }
+
+        public Row(String line)
+        {
+            columns = new List<string>();
+            addData(line);
+        }
+
+        public int countValidColumn()
+        {
+            int counter = 0;
+            foreach(String data in columns)
+            {
+                if (data != null && data.CompareTo("") != 0)
+                    counter++;
+            }
+
+            return counter;
+        }
+
         public int getIDColumn()
         {
             //assume that id column is alway at column 1
             return Int32.Parse(columns[0]);
+        }
+
+        public void addData(Row row)
+        {
+            foreach (String data in row.columns)
+                columns.Add(data);
         }
 
         public void addData(String line)

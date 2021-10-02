@@ -30,7 +30,7 @@ namespace covidDataSorting
             InitializeComponent();
         }
 
-        //------------------------------------------------------------------------------------------------------
+        //-----------------------------------------Local function-------------------------------------------------------------
         private String getCurrentRunTime(DateTime time)
         {
             var hours = Math.Abs(time.Hour - DateTime.Now.Hour);
@@ -159,6 +159,100 @@ namespace covidDataSorting
             }
         }
 
+        private List<String> getAllVaxName(RowDataSet rds)
+        {
+            List<String> nameList = new List<string>();
+
+            foreach (int index in rds.orderList)
+            {
+                Row row = rds.rowList[index];
+                String currentVaxName = row.columns[3];
+                bool isInList = false;
+                foreach (String name in nameList)
+                {
+                    if (name.CompareTo(currentVaxName) == 0)
+                        isInList = true;
+                }
+                if (!isInList)
+                    nameList.Add(currentVaxName);
+            }
+
+            return nameList;
+        }
+
+        private List<String> getAllSymtomName(RowDataSet rds)
+        {
+            List<String> symtomList = new List<String>();
+
+            foreach (int index in rds.orderList)
+            {
+                Row row = rds.rowList[index];
+                String currentSymtomName = row.columns[5];
+                bool isInList = false;
+                foreach (String name in symtomList)
+                {
+                    if (name.CompareTo(currentSymtomName) == 0)
+                        isInList = true;
+                }
+                if (!isInList)
+                    symtomList.Add(currentSymtomName);
+            }
+
+            return symtomList;
+        }
+
+        private void groupData(String name, int minAge, int maxAge)
+        {
+            groupList.Add(new Group(name));
+            int groupRootIndex = groupList.Count - 1;
+
+            //group by age
+            List<int> ageGroupList = FM.GMs[0].groupByAge(minAge, maxAge);
+            groupList[groupRootIndex].copyOrderList(ageGroupList);
+
+            //group by male
+            groupList[groupRootIndex].addChildGroup("Gender: M");
+            List<int> maleGenderList = FM.GMs[0].groupByColumn(ageGroupList, 2, "M");
+            groupList[groupRootIndex].search("Gender: M").copyOrderList(maleGenderList);
+
+            //group by female
+            groupList[groupRootIndex].addChildGroup("Gender: F");
+            List<int> femaleGroupList = FM.GMs[0].groupByColumn(ageGroupList, 2, "F");
+            groupList[groupRootIndex].search("Gender: F").copyOrderList(femaleGroupList);
+
+            //group by N/A
+            groupList[groupRootIndex].addChildGroup("Gender: N/A");
+            List<int> nullGenderGroupList = FM.GMs[0].groupByColumn(ageGroupList, 2, "");
+            groupList[groupRootIndex].search("Gender: N/A").copyOrderList(nullGenderGroupList);
+
+            //group by vacince name
+            foreach (Group group in groupList[groupRootIndex].childGroupList)
+            {
+                RowDataSet rds = new RowDataSet(FM.GMs[0].rowList, group.rowOrderList);
+                List<String> vacinceNameList = getAllVaxName(rds);
+                foreach (String vacinceName in vacinceNameList)
+                {
+                    group.addChildGroup(vacinceName);
+                    group.childGroupList.Last().copyOrderList(FM.GMs[0].groupByColumn(group.rowOrderList, 3, vacinceName));
+                }
+            }
+
+            //group by symtom name
+            foreach (Group outerGroup in groupList[groupRootIndex].childGroupList)
+            {
+                if (outerGroup.childGroupList != null)
+                    foreach (Group group in outerGroup.childGroupList)
+                    {
+                        RowDataSet rds = new RowDataSet(FM.GMs[0].rowList, group.rowOrderList);
+                        List<String> symtomNameList = getAllSymtomName(rds);
+                        foreach (String symtomName in symtomNameList)
+                        {
+                            group.addChildGroup(symtomName);
+                            group.childGroupList.Last().copyOrderList(FM.GMs[0].groupByColumn(group.rowOrderList, 5, symtomName));
+                        }
+                    }
+            }
+        }
 
         private void printDebug(Object data)
         {
@@ -166,7 +260,7 @@ namespace covidDataSorting
             DebugConsole.AppendText(DateTime.Now + " --> " + data.ToString() + "\n");
         }
 
-        //------------------------------------------------------------------------------------------------------
+        //--------------------------------------------Swing function----------------------------------------------------------
 
         private void browseCSVButton_Click(object sender, EventArgs e)
         {
@@ -274,7 +368,7 @@ namespace covidDataSorting
             {
                 debugLabel.Text = "Begin read Task 1 file";
                 Task t1 = Task.Run(() => {
-                    finishRead = FM.readCSVFile(newCSVFileLocation.absolutePath);
+                    finishRead = FM.readCSVFile(newCSVFileLocation.absolutePath, true);
                 });
                 t1.Wait();
                 if (!finishRead)
@@ -297,7 +391,21 @@ namespace covidDataSorting
 
             if(dialog == DialogResult.OK)
             {
-                List<int> indexs = new List<int>() { 0, 3, 6, 41, 7, 42, 44, 46, 48, 50, 9, 10, 8 };
+                Row header = FM.GMs[0].rowList.First();
+
+                List<int> symtomColumnIndex = new List<int>();
+
+                for(int count = 42; count < header.columns.Count; count++)
+                {
+                    if(count % 2 == 0)
+                    {
+                        symtomColumnIndex.Add(count);
+                    }
+                }
+
+                List<int> indexs = new List<int>() { 0, 3, 6, 41, 7, 9, 10, 8 };
+
+                indexs.InsertRange(5, symtomColumnIndex);
 
                 debugLabel.Text = "Begin filter Task 1 file";
 
@@ -307,17 +415,22 @@ namespace covidDataSorting
                 });
                 t1.Wait();
 
-                indexs = new List<int>() { 5, 6, 7, 8, 9 };
+                for(int count = 0; count < symtomColumnIndex.Count; count++)
+                {
+                    symtomColumnIndex[count] = 5 + count;
+                }
+
+                //indexs = new List<int>() { 5, 6, 7, 8, 9 };
 
                 debugLabel.Text = "Begin Split Symtom Column on Task 1 file";
 
                 Task t2 = Task.Run(() =>
                 {
-                    FM.GMs[0].splitColumn(indexs);
+                    FM.GMs[0].splitSymptomColumn(symtomColumnIndex);
                 });
                 t2.Wait();
 
-                if(suffleCheckBox.Checked)
+                if (suffleCheckBox.Checked)
                 {
                     debugLabel.Text = "Begin suffle all the row";
 
@@ -503,7 +616,51 @@ namespace covidDataSorting
 
             }
         }
+        private void bubbleSortButton_Click(object sender, EventArgs e)
+        {
+            var dialog = saveFileDialog1.ShowDialog();
 
+            if (dialog == DialogResult.OK)
+            {
+                bool stopClock = false;
+                int h = 0, m = 0, s = 0;
+
+                Task clock = new Task(() =>
+                {
+                    while (!stopClock)
+                    {
+                        bubbleSortTimerLabel.Invoke((MethodInvoker)delegate ()
+                        {
+                            bubbleSortTimerLabel.Text = nextSecondTick(ref h, ref m, ref s);
+                        });
+
+                        wait(1000);
+                    }
+                });
+
+                Task t1 = Task.Run(() =>
+                {
+                    FileLocation tempFileLocation = new FileLocation(newCSVFileLocation.absolutePath);
+
+                    RowDataSet rds = new RowDataSet(FM.GMs[0].rowList);
+
+                    clock.Start();
+
+                    rds.orderList.RemoveAt(0);
+
+                    GridManager.BubbleSort(rds);
+
+                    rds.orderList.Insert(0, 0);
+
+                    stopClock = true;
+
+                    FM.writeCSVFile(tempFileLocation.absolutePath, 0, rds.orderList);
+                });
+
+                absolutePathLabel.Text = newCSVFileLocation.fileName;
+
+            }
+        }
         private void groupFileButton_Click(object sender, EventArgs e)
         {
             bool doneFiltering = false;
@@ -592,59 +749,6 @@ namespace covidDataSorting
             
         }
 
-        private void groupData(String name, int minAge, int maxAge)
-        {
-            groupList.Add(new Group(name));
-            int groupRootIndex = groupList.Count - 1;
-
-            //group by age
-            List<int> ageGroupList = FM.GMs[0].groupByAge(minAge, maxAge);
-            groupList[groupRootIndex].copyOrderList(ageGroupList);
-
-            //group by male
-            groupList[groupRootIndex].addChildGroup("Gender: M");
-            List<int> maleGenderList = FM.GMs[0].groupByColumn(ageGroupList, 2, "M");
-            groupList[groupRootIndex].search("Gender: M").copyOrderList(maleGenderList);
-
-            //group by female
-            groupList[groupRootIndex].addChildGroup("Gender: F");
-            List<int> femaleGroupList = FM.GMs[0].groupByColumn(ageGroupList, 2, "F");
-            groupList[groupRootIndex].search("Gender: F").copyOrderList(femaleGroupList);
-
-            //group by N/A
-            groupList[groupRootIndex].addChildGroup("Gender: N/A");
-            List<int> nullGenderGroupList = FM.GMs[0].groupByColumn(ageGroupList, 2, "");
-            groupList[groupRootIndex].search("Gender: N/A").copyOrderList(nullGenderGroupList);
-
-            //group by vacince name
-            foreach (Group group in groupList[groupRootIndex].childGroupList)
-            {
-                RowDataSet rds = new RowDataSet(FM.GMs[0].rowList, group.rowOrderList);
-                List<String> vacinceNameList = getAllVaxName(rds);
-                foreach(String vacinceName in vacinceNameList)
-                {
-                    group.addChildGroup(vacinceName);
-                    group.childGroupList.Last().copyOrderList(FM.GMs[0].groupByColumn(group.rowOrderList, 3, vacinceName));
-                }
-            }
-
-            //group by symtom name
-            foreach (Group outerGroup in groupList[groupRootIndex].childGroupList)
-            {
-                if(outerGroup.childGroupList != null)
-                    foreach(Group group in outerGroup.childGroupList)
-                    {
-                        RowDataSet rds = new RowDataSet(FM.GMs[0].rowList, group.rowOrderList);
-                        List<String> symtomNameList = getAllSymtomName(rds);
-                        foreach (String symtomName in symtomNameList)
-                        {
-                            group.addChildGroup(symtomName);
-                            group.childGroupList.Last().copyOrderList(FM.GMs[0].groupByColumn(group.rowOrderList, 5, symtomName));
-                        }
-                    }
-            }
-        }
-
         private void exportToCSVFileButton_Click(object sender, EventArgs e)
         {
             TreeNode currentSelectedNode = treeView1.SelectedNode;
@@ -672,6 +776,7 @@ namespace covidDataSorting
             }
         }
 
+        //this is just a test button
         private void button1_Click(object sender, EventArgs e)
         {
             //RowDataSet rds = new RowDataSet(FM.GMs[0].rowList);
@@ -713,46 +818,65 @@ namespace covidDataSorting
 
         }
 
-        private List<String> getAllVaxName(RowDataSet rds)
+        private void button2_Click(object sender, EventArgs e)
         {
-            List<String> nameList = new List<string>();
+            bool finishRead = true;
 
-            foreach(int index in rds.orderList)
+            DialogResult DR = saveFileDialog1.ShowDialog();
+
+            if (DR == DialogResult.OK)
             {
-                Row row = rds.rowList[index];
-                String currentVaxName = row.columns[3];
-                bool isInList = false;
-                foreach (String name in nameList)
-                {
-                    if (name.CompareTo(currentVaxName) == 0)
-                        isInList = true;
-                }
-                if (!isInList)
-                    nameList.Add(currentVaxName);
-            }
+                var time = DateTime.Now;
 
-            return nameList;
+                FileLocation[] FL = getAllFileLocation();
+
+                CSVFileManager FMT = new CSVFileManager();
+
+                debugLabel.Text = "Begin Read CSV file";
+
+                foreach (FileLocation fileLocation in FL)
+                {
+                    Task t1 = Task.Run(() => {
+                        finishRead = FMT.readCSVFile(fileLocation.absolutePath);
+                    });
+                    t1.Wait();
+                    if (!finishRead)
+                        break;
+                }
+
+                if (!finishRead)
+                {
+                    printDebug("Please make sure to close all related file before read and combine\n");
+                    return;
+                }
+
+                debugLabel.Text = "Begin combining Symtom";
+
+                int maxSymtomColumn = 0;
+
+                Task t2 = Task.Run(() =>
+                {
+                    maxSymtomColumn = FMT.GMs[1].filterSymtom();
+                });
+                t2.Wait();
+
+                debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFileLocation.absolutePath;
+
+                Task t3 = Task.Run(() => {
+                    FMT.writeCSVFile(newCSVFileLocation.absolutePath, 1);
+                });
+                t3.Wait();
+
+                debugLabel.Text = "Job Done";
+
+                FMT = null;
+
+                combineRunTimeLabel.Text = getCurrentRunTime(time);
+
+                printDebug("max symtom column: " + maxSymtomColumn);
+            }
         }
 
-        private List<String> getAllSymtomName(RowDataSet rds)
-        {
-            List<String> symtomList = new List<String>();
-
-            foreach (int index in rds.orderList)
-            {
-                Row row = rds.rowList[index];
-                String currentSymtomName = row.columns[5];
-                bool isInList = false;
-                foreach (String name in symtomList)
-                {
-                    if (name.CompareTo(currentSymtomName) == 0)
-                        isInList = true;
-                }
-                if (!isInList)
-                    symtomList.Add(currentSymtomName);
-            }
-
-            return symtomList;
-        }
+        
     }
 }

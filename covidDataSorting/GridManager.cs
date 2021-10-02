@@ -108,7 +108,7 @@ namespace covidDataSorting
                 return true;
             }
         }
-
+        
         public Row popFirst()
         {
             if (rowList.Count > 0)
@@ -195,6 +195,57 @@ namespace covidDataSorting
             
         }
 
+        public int filterSymtom()
+        {
+            int maxSymtomNum = 0;
+            List<Row> newRowList = new List<Row>();
+            Row row = new Row();
+            
+            for (int count = 0; count < rowList.Count; count++)
+            {
+                Row pointerRow = rowList[count];
+                String currentID = pointerRow.columns[0];
+
+                //append all symtom
+                for (int column = 1; column < pointerRow.columns.Count; column++)
+                {
+                    row.columns.Add(pointerRow.columns[column].ToString());
+                }
+
+                //if the next one is not the same or if this is the last index
+                if ((count + 1 < rowList.Count && currentID.CompareTo(rowList[count + 1].columns[0]) != 0) || (count == rowList.Count - 1))
+                {
+                    if (maxSymtomNum < row.columns.Count - 1)
+                    {
+                        maxSymtomNum = row.columns.Count - 1;
+                        //Console.WriteLine(currentID);
+                    }
+                        
+
+                    row.columns.Insert(0, currentID);
+
+                    newRowList.Add(new Row(row));
+
+                    row.clear();
+                }
+            }
+
+            //foreach(Row rowT in newRowList)
+            //{
+            //    if(rowT.columns.Count < maxSymtomNum)
+            //    {
+            //        int fillNumberOfSpace = maxSymtomNum - rowT.columns.Count;
+            //        for (int count = 0; count < fillNumberOfSpace; count++)
+            //            rowT.columns.Add("");
+            //    }
+            //}
+
+            rowList.Clear();
+            rowList = newRowList;
+
+            return maxSymtomNum;
+        }
+
         public void filterDupliacate()
         {
             //Console.WriteLine("before filter dup: " + rowList.Count);
@@ -248,6 +299,7 @@ namespace covidDataSorting
             rowList.Clear();
             rowList = newRowList;
         }
+
         public void filterColumn(List<int> columns)
         {
             List<int> errorIndex = new List<int>();
@@ -279,7 +331,7 @@ namespace covidDataSorting
             maxColumnIndex = rowList[0].columns.Count - 1;
         }
 
-        public void splitColumn(List<int> columns)
+        public void splitSymptomColumn(List<int> columns)
         {
             columns.Reverse();
             int currentIndex = 0;
@@ -420,6 +472,19 @@ namespace covidDataSorting
             }
         }
 
+        public static void BubbleSort(RowDataSet rds)
+        {
+            int max = rds.orderList.Count;
+            for (int i = 1; i < max; i++)
+            {
+                for(int j = 0; j < max - 1; j++)
+                {
+                    if (rds.getData(j).getIDColumn() > rds.getData(j + 1).getIDColumn())
+                        rds.swap(j, j + 1);
+                }
+            }
+        }
+
         //--------------------------------task 3 function----------------------------------------
         public List<int> groupByAge(int minAge, int maxAge)
         {
@@ -459,6 +524,40 @@ namespace covidDataSorting
 
         public int calculateNumberOfDeathCases()
         {
+            //int result = 0;
+            //bool sorted = true;
+            //RowDataSet rds = new RowDataSet(rowList);
+            //List<int> allDeathRow = groupByColumn(rds.orderList, 6, "Y");
+
+            //rds.orderList = allDeathRow;
+
+            //int currentID = rds.getData(0).getIDColumn();
+            ////check if the data is sorted or not
+            //foreach (int index in rds.orderList)
+            //{
+            //    if (rds.rowList[index].getIDColumn() < currentID)
+            //    {
+            //        sorted = true;
+            //        break;
+            //    }
+            //    else
+            //        currentID = rds.rowList[index].getIDColumn();
+            //}
+
+            //if (!sorted)
+            //    GridManager.QuickSort(rds, 0, rds.orderList.Count - 1);
+
+            //using (GridManager gm = new GridManager())
+            //{
+            //    foreach (int index in rds.orderList)
+            //        gm.addRow(rds.rowList[index]);
+            //    gm.filterDupliacate();
+            //    result = gm.rowList.Count;
+            //}
+
+            //return result;
+
+
             int result = 0;
             RowDataSet rds = new RowDataSet(rowList);
             List<int> allDeathRow = groupByColumn(rds.orderList, 6, "Y");

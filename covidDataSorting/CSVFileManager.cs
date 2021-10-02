@@ -30,6 +30,7 @@ namespace covidDataSorting
                     while (!steamReader.EndOfStream)
                     {
                         var line = steamReader.ReadLine();
+
                         GMs[currentGMIndex].addRow(line);
                         //Console.WriteLine(line);
                     }
@@ -42,6 +43,46 @@ namespace covidDataSorting
                 return false;
             }
         }
+
+        public bool readCSVFile(String absolutePath, bool fillRow)
+        {
+            GMs.Add(new GridManager());
+            int currentGMIndex = GMs.Count - 1;
+            try
+            {
+                using (var steamReader = new StreamReader(absolutePath))
+                {
+                    var header = steamReader.ReadLine();
+                    GMs[currentGMIndex].addHeader(header);
+
+                    int maxColumn = GMs[currentGMIndex].rowList.First().columns.Count;
+
+                    while (!steamReader.EndOfStream)
+                    {
+                        var line = steamReader.ReadLine();
+
+                        if(fillRow)
+                        {
+                            Row row = new Row(line);
+                            while(row.columns.Count < maxColumn)
+                            {
+                                row.columns.Add("");
+                            }
+                            GMs[currentGMIndex].addRow(row);
+                        }
+                        else
+                            GMs[currentGMIndex].addRow(line);
+                        //Console.WriteLine(line);
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
         public void combineCSVFile()
         {
             try
@@ -50,8 +91,9 @@ namespace covidDataSorting
                 GM = new GridManager();
                 GM.addHeader(GMs[0].getHeader());
                 GM.addHeader(GMs[2].getHeader());
-                GM.addHeader(GMs[1].getHeader());
+                //GM.addHeader(GMs[1].getHeader());
 
+                int maxSymtomColumn = 0;
 
                 //note: GMs[0] is data file, GMs[1] is symtom file, GMs[2] is Vax file
                 //now add the data for each groupd of 3 file
@@ -59,6 +101,7 @@ namespace covidDataSorting
                 {
                     //loop variable
                     String currentID;
+                    
 
                     //remove all header for each file
                     GMs[0].removeRowAt(0);
@@ -66,7 +109,7 @@ namespace covidDataSorting
                     GMs[2].removeRowAt(0);
 
                     GMs[0].filterDupliacate();
-                    GMs[1].filterDupliacate();
+                    GMs[1].filterSymtom();
                     GMs[2].filterVax();
 
                     while (!GMs[2].isEmpty())
@@ -119,13 +162,24 @@ namespace covidDataSorting
 
                         if (!skip)
                         {
-                            tempRow.addData(dataRow.ToString());
+                            tempRow.addData(dataRow);
                             vaxRow.columns.RemoveAt(0);
-                            tempRow.addData(vaxRow.ToString());
-                            symtomRow.columns.RemoveAt(0);
-                            tempRow.addData(symtomRow.ToString());
-                            //Console.WriteLine(tempRow);
-                            GM.addRow(tempRow);
+                            tempRow.addData(vaxRow);
+                            
+
+                            //fiilter out minor line
+                            if(tempRow.columns.Count == GM.maxColumnIndex + 1)
+                            {
+                                symtomRow.columns.RemoveAt(0);
+                                tempRow.addData(symtomRow);
+
+                                if (maxSymtomColumn < symtomRow.countValidColumn())
+                                {
+                                    maxSymtomColumn = symtomRow.countValidColumn();
+                                    //Console.WriteLine(currentID);
+                                }
+                                GM.addRow(tempRow);
+                            }
                         }
                     }
 
@@ -136,21 +190,27 @@ namespace covidDataSorting
                 while (GMs.Count >= 3);
 
                 //fillter out minor error line
-                List<int> errorData = new List<int>();
-                for(int count = 0; count < GM.rowList.Count; count++)
-                {
-                    if (GM.rowList[count].columns.Count != GM.maxColumnIndex + 1)
-                        errorData.Add(count);
-                }
+                //List<int> errorData = new List<int>();
+                //for(int count = 0; count < GM.rowList.Count; count++)
+                //{
+                //    if (GM.rowList[count].columns.Count != GM.maxColumnIndex + 1)
+                //        errorData.Add(count);
+                //}
 
-                errorData.Reverse();
-                foreach (int index in errorData)
-                {
-                    //Console.WriteLine("Remove: " + GM.rowList[index]);
-                    GM.rowList.RemoveAt(index);
-                }
-                    
+                //errorData.Reverse();
+                //foreach (int index in errorData)
+                //{
+                //    //Console.WriteLine("Remove: " + GM.rowList[index]);
+                //    GM.rowList.RemoveAt(index);
+                //}
 
+                
+                for(int count = 0; count < maxSymtomColumn / 2; count++)
+                {
+                    int index = count + 1;
+                    GM.rowList[0].addData("SYMPTOM" + index);
+                    GM.rowList[0].addData("SYMPTOMVERSION" + index);
+                }
             }
             catch (Exception ex)
             {
