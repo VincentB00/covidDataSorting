@@ -349,7 +349,7 @@ namespace covidDataSorting
 
             newRowList.Add(tempRow);
 
-            //modify data //need fix here
+            //modify data
             currentIndex++;
             while(currentIndex < rowList.Count)
             {
@@ -491,7 +491,7 @@ namespace covidDataSorting
             List<int> rowIndexs = new List<int>();
             for(int count = 0; count < rowList.Count; count++)
             {
-                String ageStr = rowList[count].columns[1];
+                String ageStr = rowList[count].columns[1]; //asume that column at index 1 hold age information
                 if(ageStr != null && ageStr.CompareTo("") != 0 && ageStr.CompareTo("AGE_YRS") != 0)
                 {
                     float currentAge = float.Parse(ageStr);
@@ -522,7 +522,27 @@ namespace covidDataSorting
             return rowIndexs;
         }
 
-        public int calculateNumberOfDeathCases()
+        public int calculateNumberOfDeathCases(Group group)
+        {
+            int result = 0;
+            List<int> allDeathRow = groupByColumn(group.rowOrderList, 6, "Y");
+
+            using (var tempGM = new GridManager())
+            {
+                foreach (int index in allDeathRow)
+                {
+                    tempGM.addRow(rowList[index].ToString());
+                }
+
+                tempGM.filterDupliacate();
+
+                result = tempGM.rowList.Count;
+            }
+
+            return result;
+        }
+
+        public int calculateTotalNumberOfDeathCases()
         {
             //int result = 0;
             //bool sorted = true;

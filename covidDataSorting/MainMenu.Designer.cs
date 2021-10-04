@@ -39,6 +39,9 @@ namespace covidDataSorting
             this.combineRunTimeLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.bubbleSortTimerLabel = new System.Windows.Forms.Label();
+            this.bubbleSortButton = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
             this.selectionSortButton = new System.Windows.Forms.Button();
             this.selectionSortTimerLabel = new System.Windows.Forms.Label();
             this.insertionSortTimerLabel = new System.Windows.Forms.Label();
@@ -66,9 +69,9 @@ namespace covidDataSorting
             this.debugLabel = new System.Windows.Forms.Label();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.label6 = new System.Windows.Forms.Label();
-            this.bubbleSortButton = new System.Windows.Forms.Button();
-            this.bubbleSortTimerLabel = new System.Windows.Forms.Label();
+            this.calNumberOfDeathButton = new System.Windows.Forms.Button();
+            this.numberOfDeathLabel = new System.Windows.Forms.Label();
+            this.groupingSortCheckBox = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
@@ -197,6 +200,37 @@ namespace covidDataSorting
             this.tabPage3.Text = "Task 2";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // bubbleSortTimerLabel
+            // 
+            this.bubbleSortTimerLabel.AutoSize = true;
+            this.bubbleSortTimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bubbleSortTimerLabel.Location = new System.Drawing.Point(896, 46);
+            this.bubbleSortTimerLabel.Name = "bubbleSortTimerLabel";
+            this.bubbleSortTimerLabel.Size = new System.Drawing.Size(42, 24);
+            this.bubbleSortTimerLabel.TabIndex = 16;
+            this.bubbleSortTimerLabel.Text = "N/A";
+            // 
+            // bubbleSortButton
+            // 
+            this.bubbleSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bubbleSortButton.Location = new System.Drawing.Point(900, 8);
+            this.bubbleSortButton.Name = "bubbleSortButton";
+            this.bubbleSortButton.Size = new System.Drawing.Size(249, 35);
+            this.bubbleSortButton.TabIndex = 15;
+            this.bubbleSortButton.Text = "Bubble Sort";
+            this.bubbleSortButton.UseVisualStyleBackColor = true;
+            this.bubbleSortButton.Click += new System.EventHandler(this.bubbleSortButton_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(683, 8);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(211, 24);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "Extra sort, just for fun -->";
+            // 
             // selectionSortButton
             // 
             this.selectionSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -316,6 +350,9 @@ namespace covidDataSorting
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.groupingSortCheckBox);
+            this.tabPage4.Controls.Add(this.numberOfDeathLabel);
+            this.tabPage4.Controls.Add(this.calNumberOfDeathButton);
             this.tabPage4.Controls.Add(this.label5);
             this.tabPage4.Controls.Add(this.label3);
             this.tabPage4.Controls.Add(this.label2);
@@ -337,15 +374,15 @@ namespace covidDataSorting
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(4, 413);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(230, 24);
+            this.label5.Size = new System.Drawing.Size(273, 24);
             this.label5.TabIndex = 13;
-            this.label5.Text = "Number of death cases: ...";
+            this.label5.Text = "Total number of death cases: ...";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(4, 106);
+            this.label3.Location = new System.Drawing.Point(4, 140);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(135, 24);
             this.label3.TabIndex = 12;
@@ -364,7 +401,7 @@ namespace covidDataSorting
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(8, 174);
+            this.button1.Location = new System.Drawing.Point(8, 208);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(249, 35);
             this.button1.TabIndex = 10;
@@ -375,7 +412,7 @@ namespace covidDataSorting
             // exportToCSVFileButton
             // 
             this.exportToCSVFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.exportToCSVFileButton.Location = new System.Drawing.Point(8, 133);
+            this.exportToCSVFileButton.Location = new System.Drawing.Point(8, 167);
             this.exportToCSVFileButton.Name = "exportToCSVFileButton";
             this.exportToCSVFileButton.Size = new System.Drawing.Size(249, 35);
             this.exportToCSVFileButton.TabIndex = 9;
@@ -471,36 +508,37 @@ namespace covidDataSorting
             this.saveFileDialog1.Filter = "\"CSV Files(*.csv)|*.csv|Text files (*.txt)|*.txt|All files (*.*)|*.*\"";
             this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
             // 
-            // label6
+            // calNumberOfDeathButton
             // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(683, 8);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(211, 24);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "Extra sort, just for fun -->";
+            this.calNumberOfDeathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.calNumberOfDeathButton.Location = new System.Drawing.Point(8, 375);
+            this.calNumberOfDeathButton.Name = "calNumberOfDeathButton";
+            this.calNumberOfDeathButton.Size = new System.Drawing.Size(247, 35);
+            this.calNumberOfDeathButton.TabIndex = 14;
+            this.calNumberOfDeathButton.Text = "Calculate number of death";
+            this.calNumberOfDeathButton.UseVisualStyleBackColor = true;
+            this.calNumberOfDeathButton.Click += new System.EventHandler(this.calNumberOfDeathButton_Click);
             // 
-            // bubbleSortButton
+            // numberOfDeathLabel
             // 
-            this.bubbleSortButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bubbleSortButton.Location = new System.Drawing.Point(900, 8);
-            this.bubbleSortButton.Name = "bubbleSortButton";
-            this.bubbleSortButton.Size = new System.Drawing.Size(249, 35);
-            this.bubbleSortButton.TabIndex = 15;
-            this.bubbleSortButton.Text = "Bubble Sort";
-            this.bubbleSortButton.UseVisualStyleBackColor = true;
-            this.bubbleSortButton.Click += new System.EventHandler(this.bubbleSortButton_Click);
+            this.numberOfDeathLabel.AutoSize = true;
+            this.numberOfDeathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numberOfDeathLabel.Location = new System.Drawing.Point(261, 380);
+            this.numberOfDeathLabel.Name = "numberOfDeathLabel";
+            this.numberOfDeathLabel.Size = new System.Drawing.Size(25, 24);
+            this.numberOfDeathLabel.TabIndex = 15;
+            this.numberOfDeathLabel.Text = "...";
             // 
-            // bubbleSortTimerLabel
+            // groupingSortCheckBox
             // 
-            this.bubbleSortTimerLabel.AutoSize = true;
-            this.bubbleSortTimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bubbleSortTimerLabel.Location = new System.Drawing.Point(896, 46);
-            this.bubbleSortTimerLabel.Name = "bubbleSortTimerLabel";
-            this.bubbleSortTimerLabel.Size = new System.Drawing.Size(42, 24);
-            this.bubbleSortTimerLabel.TabIndex = 16;
-            this.bubbleSortTimerLabel.Text = "N/A";
+            this.groupingSortCheckBox.AutoSize = true;
+            this.groupingSortCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupingSortCheckBox.Location = new System.Drawing.Point(8, 109);
+            this.groupingSortCheckBox.Name = "groupingSortCheckBox";
+            this.groupingSortCheckBox.Size = new System.Drawing.Size(245, 28);
+            this.groupingSortCheckBox.TabIndex = 16;
+            this.groupingSortCheckBox.Text = "Sort data before Grouping";
+            this.groupingSortCheckBox.UseVisualStyleBackColor = true;
             // 
             // MainMenu
             // 
@@ -568,6 +606,9 @@ namespace covidDataSorting
         private System.Windows.Forms.Label bubbleSortTimerLabel;
         private System.Windows.Forms.Button bubbleSortButton;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label numberOfDeathLabel;
+        private System.Windows.Forms.Button calNumberOfDeathButton;
+        private System.Windows.Forms.CheckBox groupingSortCheckBox;
     }
 }
 

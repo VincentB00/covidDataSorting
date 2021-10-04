@@ -688,6 +688,13 @@ namespace covidDataSorting
 
             Task t1 = Task.Run(() =>
             {
+                if(groupingSortCheckBox.Checked)
+                {
+                    RowDataSet rds = new RowDataSet(FM.GMs[0].rowList);
+
+                    GridManager.QuickSort(rds, 1, rds.rowList.Count - 1);
+                }
+
                 groupData("age: < 1", 0, 1);
 
                 groupData("age: 1 - 3", 1, 3);
@@ -716,12 +723,12 @@ namespace covidDataSorting
 
                 stopClock = true;
 
-                int numberOfDeathCases = FM.GMs[0].calculateNumberOfDeathCases();
+                int numberOfDeathCases = FM.GMs[0].calculateTotalNumberOfDeathCases();
 
                 //Number of death cases: ...
                 label5.Invoke((MethodInvoker)delegate ()
                 {
-                    label5.Text = "Number of death cases: " + numberOfDeathCases;
+                    label5.Text = "Total number of death cases: ...: " + numberOfDeathCases;
                 });
             });
 
@@ -877,6 +884,27 @@ namespace covidDataSorting
             }
         }
 
-        
+        private void calNumberOfDeathButton_Click(object sender, EventArgs e)
+        {
+            TreeNode currentSelectedNode = treeView1.SelectedNode;
+
+            int rootIndex = getTreeNodeRootIndex(currentSelectedNode);
+            String groupName = currentSelectedNode.Text;
+
+            Group currentGroup = groupList[rootIndex].search(groupName);
+
+            if (currentGroup.rowOrderList.Count <= 0)
+            {
+                currentGroup.rowOrderList = new List<int>();
+                currentGroup.rowOrderList.Add(0);
+            }
+            else if (currentGroup.rowOrderList.First() != 0)
+                currentGroup.rowOrderList.Insert(0, 0);
+
+            int numberOfDeath = FM.GMs[0].calculateNumberOfDeathCases(currentGroup);
+
+            numberOfDeathLabel.Text = numberOfDeath.ToString();
+
+        }
     }
 }
