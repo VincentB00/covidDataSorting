@@ -304,13 +304,11 @@ namespace covidDataSorting
                     });
                     t1.Wait();
                     if (!finishRead)
-                        break;
-                }
-
-                if (!finishRead)
-                {
-                    printDebug("Please make sure to close all related file before read and combine\n");
-                    return;
+                    {
+                        printDebug("Please make sure to close all related file before read and combine\n");
+                        debugLabel.Text = "Error";
+                        return;
+                    }
                 }
 
                 debugLabel.Text = "Begin combining files";

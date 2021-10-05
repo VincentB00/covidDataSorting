@@ -100,87 +100,142 @@ namespace covidDataSorting
                 do
                 {
                     //loop variable
-                    String currentID;
-                    
+                    int currentID;
+                    int maxDataColumn = GMs[0].rowList[0].columns.Count;
+                    int maxVaxColumn = GMs[2].rowList[0].columns.Count;
 
                     //remove all header for each file
                     GMs[0].removeRowAt(0);
                     GMs[1].removeRowAt(0);
                     GMs[2].removeRowAt(0);
 
-                    GMs[0].filterDupliacate();
                     GMs[1].filterSymtom();
                     GMs[2].filterVax();
 
+                    currentID = GMs[2].rowList.First().getIDColumn();
+
                     while (!GMs[2].isEmpty())
                     {
-                        Row tempRow = new Row();
-                        Row vaxRow = GMs[2].popFirst();
-
-                        currentID = vaxRow.columns[0];
                         bool skip = false;
 
+                        Row tempRow = new Row();
+
+                        //handle Vax
+                        int counter3 = 0;
+                        Row vaxRow = GMs[2].getData(counter3);
+                        Task t3 = Task.Run(() =>
+                        {
+                            while (vaxRow != null && vaxRow.getIDColumn() != currentID)
+                            {
+                                if(vaxRow.getIDColumn() < currentID)
+                                {
+                                    GMs[2].rowList.RemoveAt(counter3);
+                                }
+                                else
+                                    counter3++;
+
+                                if (counter3 >= GMs[2].rowList.Count)
+                                {
+                                    skip = true;
+                                    Console.WriteLine("skip: " + currentID);
+                                    break;
+                                }
+
+                                vaxRow = GMs[2].getData(counter3);
+                            }
+                        });
 
                         //handle data
-                        Row dataRow = GMs[0].popFirst();
+                        int counter1 = 0;
+                        Row dataRow = GMs[0].getData(counter1);
                         Task t1 = Task.Run(() =>
                         {
-                            while (dataRow != null && dataRow.columns[0].CompareTo(currentID) != 0 && !skip)
+                            while (dataRow != null && dataRow.getIDColumn() != currentID)
                             {
-                                if (GMs[0].rowList.Count > 1 && Int32.Parse(GMs[0].rowList[0].columns[0]) > Int32.Parse(currentID))
+                                if (dataRow.getIDColumn() < currentID)
                                 {
-                                    skip = true;
-                                    break;
+                                    GMs[0].rowList.RemoveAt(counter1);
                                 }
                                 else
-                                    dataRow = GMs[0].popFirst();
+                                    counter1++;
+
+                                if (counter1 >= GMs[0].rowList.Count)
+                                {
+                                    skip = true;
+                                    Console.WriteLine("skip: " + currentID);
+                                    break;
+                                }
+
+                                dataRow = GMs[0].getData(counter1);
                             }
                         });
+                        
 
                         //handle symtom data
-                        Row symtomRow = GMs[1].popFirst();
+                        int counter2 = 0; 
+                        Row symtomRow = GMs[1].getData(counter2);
                         Task t2 = Task.Run(() =>
                         {
-                            while (symtomRow != null && symtomRow.columns[0].CompareTo(currentID) != 0 && !skip)
+                            while (symtomRow != null && symtomRow.getIDColumn() != currentID)
                             {
-                                if (GMs[1].rowList.Count > 1 && Int32.Parse(GMs[1].rowList[0].columns[0]) > Int32.Parse(currentID))
+                                if (symtomRow.getIDColumn() < currentID)
                                 {
-                                    skip = true;
-                                    break;
+                                    GMs[1].rowList.RemoveAt(counter2);
                                 }
                                 else
-                                    symtomRow = GMs[1].popFirst();
+                                    counter2++;
+
+                                if(counter2 >= GMs[1].rowList.Count)
+                                {
+                                    skip = true;
+                                    Console.WriteLine("skip: " + currentID);
+                                    break;
+                                }
+
+                                symtomRow = GMs[1].getData(counter2);
                             }
                         });
 
-                        
+
                         t1.Wait();
                         t2.Wait();
+                        t3.Wait();
 
                         if (dataRow == null || symtomRow == null)
                             break;
 
+
                         if (!skip)
                         {
+                            while (dataRow.columns.Count < maxDataColumn)
+                                dataRow.columns.Add("");
                             tempRow.addData(dataRow);
+
+                            while (vaxRow.columns.Count < maxVaxColumn)
+                                vaxRow.columns.Add("");
+
                             vaxRow.columns.RemoveAt(0);
                             tempRow.addData(vaxRow);
-                            
 
-                            //fiilter out minor line
-                            if(tempRow.columns.Count == GM.maxColumnIndex + 1)
+                            symtomRow.columns.RemoveAt(0);
+                            tempRow.addData(symtomRow);
+
+                            if (maxSymtomColumn < symtomRow.countValidColumn())
                             {
-                                symtomRow.columns.RemoveAt(0);
-                                tempRow.addData(symtomRow);
-
-                                if (maxSymtomColumn < symtomRow.countValidColumn())
-                                {
-                                    maxSymtomColumn = symtomRow.countValidColumn();
-                                    //Console.WriteLine(currentID);
-                                }
-                                GM.addRow(tempRow);
+                                maxSymtomColumn = symtomRow.countValidColumn();
+                                //Console.WriteLine(currentID);
                             }
+
+                            GMs[0].rowList.RemoveAt(counter1);
+                            GMs[1].rowList.RemoveAt(counter2);
+                            GMs[2].rowList.RemoveAt(counter3);
+
+                            GM.addRow(tempRow);
+
+                            
                         }
+
+                        currentID++;
                     }
 
                     GMs.RemoveAt(2);
@@ -189,22 +244,7 @@ namespace covidDataSorting
                 }
                 while (GMs.Count >= 3);
 
-                //fillter out minor error line
-                //List<int> errorData = new List<int>();
-                //for(int count = 0; count < GM.rowList.Count; count++)
-                //{
-                //    if (GM.rowList[count].columns.Count != GM.maxColumnIndex + 1)
-                //        errorData.Add(count);
-                //}
-
-                //errorData.Reverse();
-                //foreach (int index in errorData)
-                //{
-                //    //Console.WriteLine("Remove: " + GM.rowList[index]);
-                //    GM.rowList.RemoveAt(index);
-                //}
-
-                
+                //add in symtom column
                 for(int count = 0; count < maxSymtomColumn / 2; count++)
                 {
                     int index = count + 1;

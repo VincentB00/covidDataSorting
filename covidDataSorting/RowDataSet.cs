@@ -55,8 +55,7 @@ namespace covidDataSorting
 
             for(int count = 0; count < orderList.Count; count++)
             {
-                tempRowList.Add(new Row());
-                copyRow(rowList[orderList[count]], tempRowList.Last());
+                tempRowList.Add(new Row(rowList[orderList[count]]));
             }
 
             return tempRowList;

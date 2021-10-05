@@ -65,8 +65,7 @@ namespace covidDataSorting
         public void addRow(String line)
         {
             maxRowIndex++;
-            rowList.Add(new Row());
-            rowList[maxRowIndex].addData(line);
+            rowList.Add(new Row(line));
         }
 
         public void addRowData(String line, int rowIndex)
@@ -89,7 +88,11 @@ namespace covidDataSorting
             }
             return result;
         }
-
+        public Row getData(int rowIndex)
+        {
+            Row row = new Row(rowList[rowIndex]);
+            return row;
+        }
         public String getData(int column, int row)
         {
             if (column > this.maxColumnIndex && row > this.maxRowIndex)
@@ -113,8 +116,9 @@ namespace covidDataSorting
         {
             if (rowList.Count > 0)
             {
-                Row row = rowList.First();
+                Row row = new Row(rowList.First());
                 rowList.RemoveAt(0);
+                //Console.WriteLine(row);
                 return row;
             }
             else
@@ -190,7 +194,6 @@ namespace covidDataSorting
             rowList.Clear();
             rowList = newRowList;
 
-            
             filterDupliacate();
             
         }
@@ -405,6 +408,15 @@ namespace covidDataSorting
         {
             foreach (String data in row1.columns)
                 row2.columns.Add(data);
+        }
+
+        public void QuickSort(int l, int r)
+        {
+            RowDataSet rds = new RowDataSet(rowList);
+            QuickSort(rds, l, r);
+            List<Row> newRowList = rds.getCopyOfCurrentRowListOrder();
+            this.rowList.Clear();
+            this.rowList = newRowList;
         }
 
         public static void QuickSort(RowDataSet rds, int l, int r)

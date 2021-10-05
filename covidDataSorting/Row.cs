@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace covidDataSorting
@@ -83,52 +84,9 @@ namespace covidDataSorting
 
         public static List<String> splitCSVData(String line)
         {
-            List<String> list = new List<string>();
-
-            while (line.IndexOf(',') >= 0)
-            {
-                String currentString = line.Substring(0, line.IndexOf(','));
-
-                //Console.WriteLine("current String: " + currentString);
-
-
-                if (currentString.IndexOf('\"') < 0)
-                {
-                    line = line.Substring(line.IndexOf(',') + 1);
-                }
-                else if (currentString.First() == '\"' && currentString.Last() == '\"')
-                {
-                    line = line.Substring(line.IndexOf(',') + 1);
-                }
-                else if (currentString.IndexOf('\"') >= 0)
-                {
-                    String tempString = line.Substring(line.IndexOf(','));
-                    int nextDQouteIndex = getIndexNextQoute(tempString);
-
-                    //Console.WriteLine(tempString.Substring(nextDQouteIndex + 1).Length);
-
-                    if (tempString.Substring(nextDQouteIndex + 1).Length == 0)
-                    {
-                        line = "-1";
-                    }
-                    else
-                        line = tempString.Substring(nextDQouteIndex + 2);
-
-                    tempString = tempString.Substring(0, nextDQouteIndex + 1);
-                    currentString = currentString + tempString;
-                }
-                list.Add(currentString);
-
-                //Console.WriteLine("Current String after format: " + currentString);
-
-                //Console.WriteLine("Current Line: " + line);
-
-            }
-
-            if (line.CompareTo("-1") != 0)
-                list.Add(line);
-
-            return list;
+            string[] result = Regex.Split(line, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            
+            return result.ToList<String>();
         }
 
         public static int getIndexNextQoute(String data)

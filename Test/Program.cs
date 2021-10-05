@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using covidDataSorting;
 
 namespace Test
@@ -20,6 +21,21 @@ namespace Test
             String data5 = "5,12/16/2020,MD,32.0,32,,F,,\"redness around the injection spot, fever chills, Stomach Ache, Body Ache, Short of breath(walking up stairs ), Headaches no appetite, Dry heating .\",,,,,,,,,N,12/14/2020,12/14/2020,0,n/a,PVT,,\"Daily 60mg Prozac, Vitamin D Supplement, Tylenol  6mg melatonin\",None,None,,vsafe,2,12/16/2020,,Y,,Morphine,COVID19,PFIZER\\BIONTECH,EH9899,1,IM,LA,COVID19 (COVID19 (PFIZER-BIONTECH)),Injection site erythema,23.10,Pain,23.10,Pyrexia,23.10,Retching,23.10,,";
             String data6 = "9,12/17/2020,AK,57.0,57,,F,,\"Heart rate increase, flushed for about 20 minutes.She has an internal monitor/defibrillator.States \"\"it feels like when they do a dvice check.\"\"\",,,,,,,,,Y,12/17/2020,12/17/2020,0,,PVT,,unknown,none,\"obesity, cardiac disease with internal monitor/defibrillator\",,,2,12/17/2020,,,,unknown,COVID19,PFIZER\\BIONTECH,EK5730,1,IM,RA,COVID19 (COVID19 (PFIZER-BIONTECH)),Flushing,23.10,Heart rate increased,23.10,,,,,,";
             String data7 = "7,12/21/2020,IL,52.0,52,,M,,\", I had slight fever 99.6 - 101.0 and chills for a period of 8 hours\",,,,,,,,,Y,12/17/2020,12/18/2020,1,none,PVT,,\"Metformin, Atorvastatin, Carvedilol, Aspirin, Lisinopril\",none,\"Diabetic, Hypertension\",,,2,12/21/2020,,,,NKA,COVID19,PFIZER\\BIONTECH,EK5730,1,SYR,LA,COVID19 (COVID19 (PFIZER-BIONTECH)),Chills,24.00,Pyrexia,24.00,,,,,,";
+
+
+            string[] result = Regex.Split(data1, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+            //List<String> result = splitCSVData(data1);
+
+            foreach (String data in result)
+            {
+                if (data.CompareTo("") == 0)
+                {
+                    Console.WriteLine("null");
+                }
+                else
+                    Console.WriteLine(data);
+            }
 
             //Row row1 = new Row();
             //Row row2 = new Row();
@@ -89,16 +105,16 @@ namespace Test
             //    Console.Write(num + " | ");
             //}
 
-            GridManager gm = new GridManager();
-            gm.addRow(data1);
-            gm.addRow(data2);
-            gm.addRow(data3);
-            gm.addRow(data4);
-            gm.addRow(data5);
-            gm.addRow(data6);
-            gm.addRow(data7);
-             
-            RowDataSet rds = new RowDataSet(gm.rowList);
+            //GridManager gm = new GridManager();
+            //gm.addRow(data1);
+            //gm.addRow(data2);
+            //gm.addRow(data3);
+            //gm.addRow(data4);
+            //gm.addRow(data5);
+            //gm.addRow(data6);
+            //gm.addRow(data7);
+
+            //RowDataSet rds = new RowDataSet(gm.rowList);
             //gm.quickSort(rds, 0, rds.rowList.Count - 1);
             //gm.InsertionSort(rds);
             //gm.SelectionSort(rds);
@@ -106,10 +122,10 @@ namespace Test
             //rds.swap(1, 2);
             //rds.setOrderIndexAt(0, 1);
 
-            foreach (int index in rds.orderList)
-            {
-                Console.WriteLine(rds.rowList[index].columns[0]);
-            }
+            //foreach (int index in rds.orderList)
+            //{
+            //    Console.WriteLine(rds.rowList[index].columns[0]);
+            //}
         }
 
         static void insertionSort(int[] arr)
