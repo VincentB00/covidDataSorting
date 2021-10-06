@@ -124,7 +124,17 @@ namespace covidDataSorting
             else
                 return null;
         }
+        public int getLastIndexOfID(int ID)
+        {
+            int index = 0;
+            for(int count = 0; count < rowList.Count; count++)
+            {
+                if (rowList[count].getIDColumn() == ID)
+                    index = count;
+            }
 
+            return index;
+        }
         public List<Row> get(int column, int id) //this function is not working
         {
             List<Row> tempList = new List<Row>();

@@ -27,6 +27,13 @@ namespace covidDataSorting
             return absolutePath;
         }
 
+        public String getFolderLocation()
+        {
+            String result = absolutePath;
+            result = result.Substring(0, result.LastIndexOf("\\"));
+            return result;
+        }
+
         public override string ToString()
         {
             return fileName;

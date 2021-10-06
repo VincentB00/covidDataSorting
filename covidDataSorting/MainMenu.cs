@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -283,54 +284,100 @@ namespace covidDataSorting
 
         private void combineCSVFileButton_Click(object sender, EventArgs e)
         {
-            bool finishRead = true;
+            
 
             DialogResult DR = saveFileDialog1.ShowDialog();
 
             if(DR == DialogResult.OK)
             {
-                var time = DateTime.Now;
+                bool stopClock = false;
+                int h = 0, m = 0, s = 0;
 
-                FileLocation[] FL = getAllFileLocation();
-
-                CSVFileManager FMT = new CSVFileManager();
-
-                debugLabel.Text = "Begin Read CSV file";
-
-                foreach (FileLocation fileLocation in FL)
+                Task clock = new Task(() =>
                 {
-                    Task t1 = Task.Run(() => {
-                        finishRead = FMT.readCSVFile(fileLocation.absolutePath);
+                    while (!stopClock)
+                    {
+                        label7.Invoke((MethodInvoker)delegate ()
+                        {
+                            label7.Text = nextSecondTick(ref h, ref m, ref s);
+                        });
+
+                        wait(1000);
+                    }
+                });
+
+                clock.Start();
+
+                Task task = Task.Run(() =>
+                {
+                    bool finishRead = true;
+
+                    debugLabel.Invoke((MethodInvoker)delegate ()
+                    {
+                        debugLabel.Text = "Begin Read CSV file";
                     });
+
+                    FileLocation[] FL = getAllFileLocation();
+
+                    CSVFileManager FMT = new CSVFileManager();
+
+                    Task t1 = Task.Run(() => {
+                        finishRead = FMT.readCSVFile(FL);
+                    });
+
                     t1.Wait();
+
                     if (!finishRead)
                     {
                         printDebug("Please make sure to close all related file before read and combine\n");
-                        debugLabel.Text = "Error";
+                        debugLabel.Invoke((MethodInvoker)delegate ()
+                        {
+                            debugLabel.Text = "Error";
+                        });
                         return;
                     }
-                }
 
-                debugLabel.Text = "Begin combining files";
+                    debugLabel.Invoke((MethodInvoker)delegate ()
+                    {
+                        debugLabel.Text = "Begin combining files";
+                    });
 
-                Task t2 = Task.Run(() =>
-                {
-                    FMT.combineCSVFile();
+
+                    Task t2 = Task.Run(() =>
+                    {
+                        FMT.combineCSVFile();
+                    });
+                    t2.Wait();
+
+
+                    debugLabel.Invoke((MethodInvoker)delegate ()
+                    {
+                        debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFileLocation.absolutePath;
+                    });
+
+
+                    Task t3 = Task.Run(() => {
+                        FMT.writeCSVFile(newCSVFileLocation.absolutePath);
+                    });
+                    t3.Wait();
+
+                    debugLabel.Invoke((MethodInvoker)delegate ()
+                    {
+                        debugLabel.Text = "Job Done";
+                    });
+
+                    stopClock = true;
+
+                    FMT = null;
+
+                    using (StreamWriter sw = new StreamWriter(newCSVFileLocation.getFolderLocation() + "\\RunResult.TXT"))
+                    {
+                        sw.WriteLine(DateTime.Now.ToString() + " --> Run time: " + String.Format("{0}:{1}:{2}", h.ToString(), m.ToString(), s.ToString()));
+                        sw.WriteLine("Extract to file name --> " + newCSVFileLocation.fileName);
+                    }
                 });
-                t2.Wait();
 
-                debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFileLocation.absolutePath;
 
-                Task t3 = Task.Run(() => {
-                    FMT.writeCSVFile(newCSVFileLocation.absolutePath);
-                });
-                t3.Wait();
-
-                debugLabel.Text = "Job Done";
-
-                FMT = null;
-
-                combineRunTimeLabel.Text = getCurrentRunTime(time);
             }
         }
 
@@ -343,6 +390,7 @@ namespace covidDataSorting
         private void openNewFileButton_Click(object sender, EventArgs e)
         {
             OldBatCommand(newCSVFileLocation.absolutePath);
+
         }
 
         private void CSVFileList_KeyDown(object sender, KeyEventArgs e)
@@ -825,60 +873,12 @@ namespace covidDataSorting
 
         private void button2_Click(object sender, EventArgs e)
         {
-            bool finishRead = true;
 
             DialogResult DR = saveFileDialog1.ShowDialog();
 
             if (DR == DialogResult.OK)
             {
-                var time = DateTime.Now;
-
-                FileLocation[] FL = getAllFileLocation();
-
-                CSVFileManager FMT = new CSVFileManager();
-
-                debugLabel.Text = "Begin Read CSV file";
-
-                foreach (FileLocation fileLocation in FL)
-                {
-                    Task t1 = Task.Run(() => {
-                        finishRead = FMT.readCSVFile(fileLocation.absolutePath);
-                    });
-                    t1.Wait();
-                    if (!finishRead)
-                        break;
-                }
-
-                if (!finishRead)
-                {
-                    printDebug("Please make sure to close all related file before read and combine\n");
-                    return;
-                }
-
-                debugLabel.Text = "Begin combining Symtom";
-
-                int maxSymtomColumn = 0;
-
-                Task t2 = Task.Run(() =>
-                {
-                    maxSymtomColumn = FMT.GMs[1].filterSymtom();
-                });
-                t2.Wait();
-
-                debugLabel.Text = "Begin Wrtie CSV file to " + newCSVFileLocation.absolutePath;
-
-                Task t3 = Task.Run(() => {
-                    FMT.writeCSVFile(newCSVFileLocation.absolutePath, 1);
-                });
-                t3.Wait();
-
-                debugLabel.Text = "Job Done";
-
-                FMT = null;
-
-                combineRunTimeLabel.Text = getCurrentRunTime(time);
-
-                printDebug("max symtom column: " + maxSymtomColumn);
+                printDebug(newCSVFileLocation.getFolderLocation());
             }
         }
 
@@ -903,6 +903,16 @@ namespace covidDataSorting
 
             numberOfDeathLabel.Text = numberOfDeath.ToString();
 
+        }
+
+        private void notepadButton_Click(object sender, EventArgs e)
+        {
+            OldBatCommand("Start notepad " + newCSVFileLocation.absolutePath);
+        }
+
+        private void folderButton_Click(object sender, EventArgs e)
+        {
+            OldBatCommand("%SystemRoot%\\explorer.exe " + newCSVFileLocation.getFolderLocation());
         }
     }
 }
