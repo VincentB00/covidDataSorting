@@ -159,65 +159,65 @@ namespace covidDataSorting
             //now add the data for each groupd of 3 file
             do
             {
-                //int splitBy = 20000;
-                ////split Grid to many grid if nessessary
-                //if (GMs[0].rowList.Count > splitBy)
-                //{
-                //    GridManager T0 = new GridManager();
-                //    GridManager T1 = new GridManager();
-                //    GridManager T2 = new GridManager();
+                int splitBy = 20000;
+                //split Grid to many grid if nessessary
+                if (GMs[0].rowList.Count > splitBy)
+                {
+                    GridManager T0 = new GridManager();
+                    GridManager T1 = new GridManager();
+                    GridManager T2 = new GridManager();
 
-                //    GMs[0].removeRowAt(0);
-                //    GMs[1].removeRowAt(0);
-                //    GMs[2].removeRowAt(0);
+                    GMs[0].removeRowAt(0);
+                    GMs[1].removeRowAt(0);
+                    GMs[2].removeRowAt(0);
 
-                //    int splitIndex = splitBy;
-                //    int searchID = GMs[0].rowList[splitIndex].getIDColumn();
-                    
+                    int splitIndex = splitBy;
+                    int searchID = GMs[0].rowList[splitIndex].getIDColumn();
 
-                //    Task task0 = Task.Run(() =>
-                //    {
-                //        int SplitIDIndex = GMs[0].getLastIndexOfID(searchID);
-                //        for (int count = 0; count <= SplitIDIndex; count++)
-                //        {
-                //            T0.addRow(GMs[0].popFirst());
-                //        }
-                //    });
 
-                //    Task task1 = Task.Run(() =>
-                //    {
-                //        int SplitIDIndex = GMs[1].getLastIndexOfID(searchID);
-                //        for (int count = 0; count <= SplitIDIndex; count++)
-                //        {
-                //            T1.addRow(GMs[1].popFirst());
-                //        }
-                //    });
+                    Task task0 = Task.Run(() =>
+                    {
+                        int SplitIDIndex = GMs[0].getLastIndexOfID(searchID);
+                        for (int count = 0; count <= SplitIDIndex; count++)
+                        {
+                            T0.addRow(GMs[0].popFirst());
+                        }
+                    });
 
-                //    Task task2 = Task.Run(() =>
-                //    {
-                //        int SplitIDIndex  = GMs[2].getLastIndexOfID(searchID);
-                //        for (int count = 0; count <= SplitIDIndex; count++)
-                //        {
-                //            T2.addRow(GMs[2].popFirst());
-                //        }
-                //    });
+                    Task task1 = Task.Run(() =>
+                    {
+                        int SplitIDIndex = GMs[1].getLastIndexOfID(searchID);
+                        for (int count = 0; count <= SplitIDIndex; count++)
+                        {
+                            T1.addRow(GMs[1].popFirst());
+                        }
+                    });
 
-                //    task0.Wait();
-                //    task1.Wait();
-                //    task2.Wait();
+                    Task task2 = Task.Run(() =>
+                    {
+                        int SplitIDIndex = GMs[2].getLastIndexOfID(searchID);
+                        for (int count = 0; count <= SplitIDIndex; count++)
+                        {
+                            T2.addRow(GMs[2].popFirst());
+                        }
+                    });
 
-                //    GMs[0].rowList.Insert(0, header0);
-                //    GMs[1].rowList.Insert(0, header1);
-                //    GMs[2].rowList.Insert(0, header2);
+                    task0.Wait();
+                    task1.Wait();
+                    task2.Wait();
 
-                //    T0.rowList.Insert(0, header0);
-                //    T1.rowList.Insert(0, header1);
-                //    T2.rowList.Insert(0, header2);
+                    GMs[0].rowList.Insert(0, header0);
+                    GMs[1].rowList.Insert(0, header1);
+                    GMs[2].rowList.Insert(0, header2);
 
-                //    GMs.Insert(0, T2);
-                //    GMs.Insert(0, T1);
-                //    GMs.Insert(0, T0);
-                //}
+                    T0.rowList.Insert(0, header0);
+                    T1.rowList.Insert(0, header1);
+                    T2.rowList.Insert(0, header2);
+
+                    GMs.Insert(0, T2);
+                    GMs.Insert(0, T1);
+                    GMs.Insert(0, T0);
+                }
 
 
                 //loop variable

@@ -443,6 +443,7 @@ namespace covidDataSorting
         public static int Partition(RowDataSet rds, int l, int r)
         {
             int pivot = rds.getData(r).getIDColumn();
+            //use (l + r)/2 for faster
 
             int i = l - 1;
 
