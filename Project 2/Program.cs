@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Project_2
 {
@@ -11,7 +13,8 @@ namespace Project_2
             
             String header = "";
             //readdata
-            String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\TestFile.csv";
+            //String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\TestFile.csv";
+            String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\VAERS_COVID_DataAugust2021.csv";
             String folderPath = absolutePath.Substring(0, absolutePath.LastIndexOf('\\'));
 
 
@@ -22,16 +25,31 @@ namespace Project_2
 
             BPTree tree = new BPTree(3);
 
-            for(int count = 0; count < 15; count++)
+            Console.WriteLine("Begin inserting");
+
+            try
             {
-                tree.insert(RowList[count]);
+                int max = RowList.Count;
+
+                for (int count = 0; count < max; count++)
+                {
+                    tree.insert(RowList[count]);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
+            String visualizePath = folderPath + "visualize.txt";
 
+            Console.WriteLine("Done inserting");
+
+            tree.visualize(visualizePath);
+
+            OldBatCommand("Start notepad " + visualizePath);
 
             Console.WriteLine("Done");
-
-
         }
         public static void readCSV(List<Row> pairList, ref String header, String absolutePath)
         {
@@ -98,6 +116,37 @@ namespace Project_2
             pairList[index1] = null;
             pairList[index1] = pairList[index2];
             pairList[index2] = temp1;
+        }
+
+
+
+        private static void OldBatCommand(string url)
+        {
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    url = url.Replace("&", "^&");
+                    Process.Start(new ProcessStartInfo("cmd", $"/c {url}") { CreateNoWindow = true });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", url);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", url);
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
     }
 }
