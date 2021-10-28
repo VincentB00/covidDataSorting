@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Project_2
 {
@@ -10,47 +11,257 @@ namespace Project_2
     {
         static void Main(string[] args)
         {
-            
+            List<Row> RowList = new List<Row>();
+            List<Row> testList = new List<Row>();
+            List<Row> symtomList = new List<Row>();
+            List<Row> vaxList = new List<Row>();
+            List<Row> dataList = new List<Row>();
+            List<Task> taskList = new List<Task>();
             String header = "";
+            int maxDegree = 4;
+            BPTree tree = new BPTree(maxDegree);
+
             //readdata
             //String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\TestFile.csv";
             String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\VAERS_COVID_DataAugust2021.csv";
             String folderPath = absolutePath.Substring(0, absolutePath.LastIndexOf('\\'));
 
+            //for(int count = 1; count < 1001; count++)
+            //{
+            //    testList.Add(new Row(count + ", something"));
+            //}
 
-            List<Row> RowList = new List<Row>();
+            Console.WriteLine("Begin reading csv file");
+
             readCSV(RowList, ref header, absolutePath);
 
-            Quick_Sort(RowList, 1, RowList.Count - 1);
+            Console.WriteLine("Done reading csv file");
 
-            BPTree tree = new BPTree(3);
+            //Quick_Sort(RowList, 1, RowList.Count - 1);
 
-            Console.WriteLine("Begin inserting");
+            //-------------------------------task 2-------------------------------------
+            Console.WriteLine("Begin read 3 new file");
+            readCSV(symtomList, ref header, folderPath + "\\2021VAERSSYMPTOMSSeptember.csv");
+            readCSV(vaxList, ref header, folderPath + "\\2021VAERSVAXSeptember.csv");
+            readCSV(dataList, ref header, folderPath + "\\2021VAERSDataSeptember.csv");
+            Console.WriteLine("Done read 3 new file");
+
+            Console.WriteLine("Begin breakdown all row");
+            foreach (Row row in symtomList)
+            {
+                Task task = Task.Run(() =>
+                {
+                    row.breakDownLine();
+                });
+                taskList.Add(task);
+            }
+
+            foreach (Row row in vaxList)
+            {
+                Task task = Task.Run(() =>
+                {
+                    row.breakDownLine();
+                });
+                taskList.Add(task);
+            }
+
+            foreach (Row row in dataList)
+            {
+                Task task = Task.Run(() =>
+                {
+                    row.breakDownLine();
+                });
+                taskList.Add(task);
+            }
+
+            foreach (Task task in taskList)
+                task.Wait();
+            
+            Console.WriteLine("Done breakdown all row");
+            taskList.Clear();
+            Console.WriteLine("Begin filtering all file");
+            Task task1 = Task.Run(() =>
+            {
+                filterSymtom(symtomList);
+            });
+
+            Task task2 = Task.Run(() =>
+            {
+                filterVax(vaxList);
+            });
+
+            task1.Wait();
+            task2.Wait();
+            
+            Console.WriteLine("Done filtering all file");
+
+            return;
+
+            //----------------------main loop-------------------------------------------
+            String input = "";
+
+            while(input.CompareTo("EXIT") != 0)
+            {
+                Console.Write("Command: ");
+                input = Console.ReadLine();
+                input = input.ToUpper();
+                String extraInput = "";
+
+                switch(input)
+                {
+                    case "HELP":
+                        Console.WriteLine("HELP\ninserting\ni(inserting)\nvisualize\nv(visualize)\nsearch\ns(search)\nfolder<open folder location>");
+                        break;
+
+                    case "INSERTING":
+                    case "I":
+                        tree = new BPTree(maxDegree);
+                        Console.Write("enter inserting max: ");
+                        extraInput = Console.ReadLine();
+                        Console.WriteLine("Begin inserting");
+                        inserting(tree, RowList, Int32.Parse(extraInput));
+                        Console.WriteLine("Done inserting");
+                        break;
+                    case "SEARCH":
+                    case "S":
+                        Console.Write("Please enter search ID: ");
+                        extraInput = Console.ReadLine();
+                        Console.WriteLine(tree.find(Int32.Parse(extraInput.Trim())).toString());
+                        break;
+
+                    case "VISUALIZE":
+                    case "V":
+                        String visualizePath = folderPath + "\\visualize.txt";
+                        tree.visualize(visualizePath);
+                        OldBatCommand("Start notepad " + visualizePath);
+                        break;
+                    case "FOLDER":
+                        OldBatCommand("%SystemRoot%\\explorer.exe " + folderPath);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            Console.WriteLine("Exiting");
+        }
+
+        public static void inserting(BPTree tree, List<Row> rowList, int max)
+        {
+            if (max == -1)
+            {
+                max = rowList.Count;
+            }
 
             try
             {
-                int max = RowList.Count;
-
                 for (int count = 0; count < max; count++)
                 {
-                    tree.insert(RowList[count]);
+                    tree.insert(rowList[count]);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-
-            String visualizePath = folderPath + "visualize.txt";
-
-            Console.WriteLine("Done inserting");
-
-            tree.visualize(visualizePath);
-
-            OldBatCommand("Start notepad " + visualizePath);
-
-            Console.WriteLine("Done");
         }
+
+
+        public static void filterVax(List<Row> rowList)
+        {
+            List<Row> newRowList = new List<Row>();
+            foreach (Row row in rowList)
+            {
+                if (row.columns[1].CompareTo("COVID19") == 0)
+                {
+                    newRowList.Add(row);
+                }
+            }
+            rowList.Clear();
+            rowList = newRowList;
+
+            //filterDupliacate(rowList);
+
+        }
+
+        public static int filterSymtom(List<Row> rowList)
+        {
+            int maxSymtomNum = 0;
+            List<Row> newRowList = new List<Row>();
+            Row row = new Row();
+
+            for (int count = 0; count < rowList.Count; count++)
+            {
+                Row pointerRow = rowList[count];
+                String currentID = pointerRow.columns[0];
+
+                //append all symtom
+                for (int column = 1; column < pointerRow.columns.Count; column++)
+                {
+                    row.columns.Add(pointerRow.columns[column].ToString());
+                }
+
+                //if the next one is not the same or if this is the last index
+                if ((count + 1 < rowList.Count && currentID.CompareTo(rowList[count + 1].columns[0]) != 0) || (count == rowList.Count - 1))
+                {
+                    if (maxSymtomNum < row.columns.Count - 1)
+                    {
+                        maxSymtomNum = row.columns.Count - 1;
+                        //Console.WriteLine(currentID);
+                    }
+
+
+                    row.columns.Insert(0, currentID);
+
+                    newRowList.Add(new Row(row.ToString())); //problem here
+
+                    row.clear();
+                }
+            }
+
+            rowList.Clear();
+            rowList = newRowList;
+
+            return maxSymtomNum;
+        }
+
+        public static void filterDupliacate(List<Row> rowList)
+        {
+            //Console.WriteLine("before filter dup: " + rowList.Count);
+
+            List<int> indexList = new List<int>();
+            List<Row> newRowList = new List<Row>();
+
+            for (int count = 0; count < rowList.Count; count++)
+            {
+                String currentID = rowList[count].columns[0];
+
+                if (count + 1 < rowList.Count && currentID.CompareTo(rowList[count + 1].columns[0]) != 0)
+                {
+                    indexList.Add(count);
+                }
+                else if (count == rowList.Count - 1) //if this is the last index
+                {
+                    indexList.Add(count);
+                }
+            }
+
+
+            foreach (int index in indexList)
+            {
+                newRowList.Add(rowList[index]);
+            }
+            rowList.Clear();
+            rowList = newRowList;
+
+            //Console.WriteLine("after filter dup: " + rowList.Count);
+        }
+
+
+
+
+
+
         public static void readCSV(List<Row> pairList, ref String header, String absolutePath)
         {
             using (var steamReader = new StreamReader(absolutePath))

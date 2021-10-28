@@ -13,6 +13,7 @@ namespace Project_2
         public List<Node> childNode;
         public Node rightLeafNode;
 
+
         public Node()
         {
             defaultSetUp();
@@ -63,54 +64,111 @@ namespace Project_2
             childNode.Add(node);
         }
 
-        /**
-         * this function will return a pointer to the leaf node where the row is being inserted
-         */
-        public Node insert(Node node, Row row)
+        public Node Find(Node node, int id)
         {
-            if(node.isLeafNode())
+            if (node.isLeafNode())
             {
-                node.insertData(row);
                 return node;
             }
-            else if(node.rowList.Count == 1) //if there only 1 row in current node
+            else if (node.rowList.Count == 1) //if there only 1 row in current node
             {
                 Row rowP = node.rowList[0];
-                if(row.id < rowP.id)
+                if (id >= rowP.id)
                 {
-                    return insert(node.childNode[0], row);
+                    return search(node.childNode[1], id);
                 }
                 else
                 {
-                    return insert(node.childNode[1], row);
+                    return search(node.childNode[0], id);
                 }
             }
             else //else if there are more than 1 row in current node
             {
 
-                for(int count = 0; count < node.rowList.Count; count++)
+                for (int count = 0; count < node.rowList.Count; count++)
                 {
                     Row rowP = node.rowList[count];
-                    if (count == 0 && row.id < rowP.id) //if this is the first element
+                    if (count == 0 && id < rowP.id) //if this is the first element
                     {
-                        return insert(node.childNode[count], row);
+                        return search(node.childNode[count], id);
                     }
-                    else if(count == node.rowList.Count - 1 && row.id >= rowP.id) //if this is the last element
+                    else if (count == node.rowList.Count - 1 && id >= rowP.id) //if this is the last element
                     {
-                        return insert(node.childNode[count + 1], row);
+                        return search(node.childNode[count + 1], id);
                     }
-                    else if(count > 0) //if this is either both
+                    else if (count > 0) //if this is either both
                     {
                         Row rowT = node.rowList[count - 1];
-                        if (row.id >= rowT.id && row.id < rowP.id)
+                        if (id >= rowT.id && id < rowP.id)
                         {
-                            return insert(node.childNode[count], row);
+                            return search(node.childNode[count], id);
                         }
                     }
                 }
             }
 
             return null;
+        }
+
+        /**
+         * this function will search for the leaf node possible position
+         */
+        public Node search(Node node, int id)
+        {
+            if (node.isLeafNode())
+            {
+                return node;
+            }
+            else if (node.rowList.Count == 1) //if there only 1 row in current node
+            {
+                Row rowP = node.rowList[0];
+                if (id <= rowP.id)
+                {
+                    return search(node.childNode[0], id);
+                }
+                else
+                {
+                    return search(node.childNode[1], id);
+                }
+            }
+            else //else if there are more than 1 row in current node
+            {
+
+                for (int count = 0; count < node.rowList.Count; count++)
+                {
+                    Row rowP = node.rowList[count];
+                    if (count == 0 && id < rowP.id) //if this is the first element
+                    {
+                        return search(node.childNode[count], id);
+                    }
+                    else if (count == node.rowList.Count - 1 && id >= rowP.id) //if this is the last element
+                    {
+                        return search(node.childNode[count + 1], id);
+                    }
+                    else if (count > 0) //if this is either both
+                    {
+                        Row rowT = node.rowList[count - 1];
+                        if (id >= rowT.id && id < rowP.id)
+                        {
+                            return search(node.childNode[count], id);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * this function will return a pointer to the leaf node where the row is being inserted
+         */
+        public Node insert(Node node, Row row)
+        {
+            Node leafNode = search(node, row.id);
+
+            leafNode.insertData(row);
+
+            return leafNode;
         }
 
         public int insertData(Row row)
@@ -170,10 +228,21 @@ namespace Project_2
             for (int count = splitAt; count < maxRef; count++)
             {
                 newNode.addchildNode(childNode[count]);
-                childNode[count] = new Node(maxDegree);
+                //childNode[count] = new Node(maxDegree);
             }
 
             childNode.RemoveRange(splitAt, maxRef - splitAt);
+
+            //connect child to correct parrent
+            foreach(Node child in childNode)
+            {
+                child.parrentNode = this;
+            }
+
+            foreach (Node child in newNode.childNode)
+            {
+                child.parrentNode = newNode;
+            }
 
             return newNode;
         }
