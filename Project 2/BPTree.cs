@@ -168,19 +168,6 @@ namespace Project_2
 
             getLineList(this.node);
 
-            //getList(lines, 0, node);
-
-            //List<String> list = new List<string>();
-
-            //List<String> list = getListTwo(node);
-
-            //for(int count = 0; count < list.Count; count++)
-            //{
-            //    list[count] = list[count].Trim();
-            //}
-
-            //int longestRowLength = list[0].Length;
-
             for (int count = lines.Count - 2; count >= 0; count--)
             {
                 String lastLine = lines[count + 1].Trim();
@@ -232,31 +219,13 @@ namespace Project_2
                 else
                     line += currentNode.rowList[count].id + "|";
             }
-            line = "[" + line + "]\t";
+            line = "[" + line + "]" + space(4);
 
             return line;
         }
 
         private List<String> getList(List<String> list, int currentRow, Node node)
         {
-
-            //int max = node.rowList.Count;
-            //for (int count = 0; count < max; count++)
-            //{
-            //    if (count == max - 1)
-            //    {
-            //        list[currentRow] += node.rowList[count].id;
-            //    }
-            //    else
-            //        list[currentRow] += node.rowList[count].id + "|";
-            //}
-            //list[currentRow] += "\t";
-
-            //foreach (Row row in node.rowList)
-            //{
-            //    list[currentRow] += row.id + "|";
-            //}
-            //list[currentRow] = list[currentRow].Substring(0, list[currentRow].Length - 1) + "\t";
 
             if (list.Count == currentRow)
                 list.Add("");
