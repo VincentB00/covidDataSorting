@@ -25,7 +25,17 @@ namespace Project_2
         }
         public Row getFrist()
         {
-            return rowList[0];
+            if (rowList.Count == 0)
+                return null;
+            else
+                return rowList[0];
+        }
+        public Row getLast()
+        {
+            if (rowList.Count == 0)
+                return null;
+            else
+                return rowList[rowList.Count - 1];
         }
         private void defaultSetUp()
         {
@@ -61,7 +71,26 @@ namespace Project_2
 
         public void addchildNode(Node node)
         {
-            childNode.Add(node);
+            if (childNode.Count == 0)
+            {
+                childNode.Add(node);
+                return;
+            }
+
+            if (node.getFrist().id > childNode[childNode.Count - 1].getLast().id)
+            {
+                childNode.Add(node);
+                return;
+            }
+                
+            for(int count = 0; count < childNode.Count; count++)
+            {
+                if(node.getLast().id < childNode[count].getFrist().id)
+                {
+                    childNode.Insert(count, node);
+                    return;
+                }
+            }
         }
 
         public Node Find(Node node, int id)

@@ -21,6 +21,18 @@ namespace Project_2
             this.node = new Node(maxDegree);
         }
 
+        public Row tryFind(int id)
+        {
+            try
+            {
+                return find(id);
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
         public Row find(int id)
         {
 
@@ -115,6 +127,8 @@ namespace Project_2
 
             newNode.rowList.RemoveAt(0);
 
+
+
             return parentNode;
         }
 
@@ -124,8 +138,6 @@ namespace Project_2
         private Node splitLeafNode(Node leafNode)
         {
             Node newLeafNode = leafNode.splitLeafNode();
-
-            leafNode.rightLeafNode = newLeafNode;
 
             Node parentNode;
 
@@ -151,6 +163,10 @@ namespace Project_2
 
                 parentNode.insertData(new Row(newLeafNode.getFrist()));
             }
+
+            //connect all child node to it right leaf node
+            newLeafNode.rightLeafNode = leafNode.rightLeafNode;
+            leafNode.rightLeafNode = newLeafNode;
 
             return parentNode;
         }
@@ -219,7 +235,7 @@ namespace Project_2
                 else
                     line += currentNode.rowList[count].id + "|";
             }
-            line = "[" + line + "]" + space(4);
+            line = "[" + line + "]\t";
 
             return line;
         }

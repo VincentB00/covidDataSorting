@@ -12,38 +12,266 @@ namespace Project_2
         static void Main(string[] args)
         {
             List<Row> task1RowList = new List<Row>();
-            List<Row> testList = new List<Row>();
-            List<Row> symtomList = new List<Row>();
-            List<Row> vaxList = new List<Row>();
-            List<Row> dataList = new List<Row>();
-            List<Task> taskList = new List<Task>();
+            List<Row> task2RowList = new List<Row>();
+            List<Row> mergeRowList = new List<Row>();
             String header = "";
+            String task2Header = "";
+            String input = "";
             int maxDegree = 3;
             BPTree tree = new BPTree(maxDegree);
+            List<Row> testList = new List<Row>();
 
             String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\VAERS_COVID_DataAugust2021.csv";
             String folderPath = absolutePath.Substring(0, absolutePath.LastIndexOf('\\'));
 
-            //for(int count = 1; count < 1001; count++)
+            //for (int count = 1; count < 500; count++)
             //{
             //    testList.Add(new Row(count + ", something"));
             //}
 
-            Console.WriteLine("Begin reading csv file");
+            //shuffleRowList(testList);
+
+            //foreach (Row row in testList)
+            //{
+            //    tree.insert(row);
+            //}
+
+
+            //while (input.CompareTo("EXIT") != 0 )
+            //{
+            //    Console.Write("input: ");
+            //    input = Console.ReadLine().Trim();
+            //    switch(input.ToLower())
+            //    {
+            //        case "i":
+            //            Console.Write("insert: ");
+            //            tree.insert(new Row(Int32.Parse(Console.ReadLine().Trim()) + ", something"));
+            //            break;
+            //        case "v":
+            //            String path = folderPath + "\\visualize.txt";
+            //            tree.visualize(path);
+            //            OldBatCommand("Start notepad " + path);
+            //            break;
+            //        case "iv":
+            //            Console.Write("insert: ");
+            //            tree.insert(new Row(Int32.Parse(Console.ReadLine().Trim()) + ", something"));
+            //            String path2 = folderPath + "\\visualize.txt";
+            //            tree.visualize(path2);
+            //            OldBatCommand("Start notepad " + path2);
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //}
+
+            //return;
+
+            Console.WriteLine("Begin reading task 1 csv file");
 
             readCSV(task1RowList, ref header, absolutePath);
 
-            Console.WriteLine("Done reading csv file");
+            Console.WriteLine("Done reading task 1 csv file");
 
-            //-------------------------------task 2-------------------------------------
+            Console.Write("Read and combine task 2 file(Y|N): ");
+            input = Console.ReadLine().ToUpper();
+
+            if(input.CompareTo("Y") == 0)
+            {
+                Console.WriteLine("Begin combinding task 2 file");
+                task2RowList = CombineFile(folderPath + "\\2021VAERSDataSeptember.csv", folderPath + "\\2021VAERSSYMPTOMSSeptember.csv", folderPath + "\\2021VAERSVAXSeptember.csv", ref task2Header);
+                Console.WriteLine("Done Combinding task 2 file");
+
+                Console.WriteLine("Begin Wrtie task 2 csv file");
+                writeCSV(task2RowList, task2Header, folderPath + "\\task2File.csv");
+                Console.WriteLine("Done Wrtie task 2 csv file");
+            }
+            else
+            {
+                Console.WriteLine("Begin read task 2 file");
+                readCSV(task2RowList, ref task2Header, folderPath + "\\task2File.csv");
+                Console.WriteLine("Done read task 2 file");
+            }
+
+            Console.Write("Enter max degree number of node: ");
+            input = Console.ReadLine();
+
+            Console.Write("Merge task 1 file and task 2 file before insert into tree(Y|N): ");
+            input = Console.ReadLine().ToUpper();
+
+            if (input.CompareTo("Y") == 0)
+            {
+                Console.WriteLine("Begin merge task 1 file and task 2 file");
+                mergeRowList = meregeTask1AndTask2(task1RowList, task2RowList);
+                Console.WriteLine("Done merge task 1 file and task 2 file");
+                Console.WriteLine("Begin write merge csv file");
+                writeCSV(mergeRowList, header, folderPath + "\\mergeFile.csv");
+                Console.WriteLine("Done write merge csv file");
+
+                Console.WriteLine("Begin inserting merge file into tree");
+                inserting(tree, mergeRowList, -1);
+                Console.WriteLine("Done inserting merge file into tree");
+
+                task1RowList.Clear();
+                task2RowList.Clear();
+            }
+            else
+            {
+                Console.WriteLine("Begin inserting task 1 file into tree");
+                inserting(tree, task1RowList, -1);
+                Console.WriteLine("Done inserting task 1 file into tree");
+
+                Console.WriteLine("Begin inserting task 2 file into tree");
+                foreach (Row row in task2RowList)
+                {
+                    if (tree.tryFind(row.id) == null)
+                        tree.insert(row);
+                }
+                Console.WriteLine("Done inserting task 2 file into tree");
+
+                mergeRowList = task1RowList; //for testing
+            }
+
+
+            
+
+            //----------------------main loop-------------------------------------------
+
+
+            while (input.CompareTo("EXIT") != 0)
+            {
+                Console.Write("Command: ");
+                input = Console.ReadLine();
+                input = input.ToUpper();
+                String extraInput = "";
+
+                switch(input)
+                {
+                    case "HELP":
+                        Console.WriteLine("HELP\ninserting\ni(inserting)\nvisualize\nv(visualize)\nsearch\ns(search)\nfolder<open folder location>");
+                        break;
+                    case "INSERTING":
+                    case "I":
+                        Console.Write("Enter maximum degree of node: ");
+                        maxDegree = Int32.Parse(Console.ReadLine());
+                        tree = new BPTree(maxDegree);
+                        Console.Write("enter inserting max: ");
+                        extraInput = Console.ReadLine();
+                        Console.WriteLine("Begin inserting");
+                        inserting(tree, mergeRowList, Int32.Parse(extraInput));
+                        Console.WriteLine("Done inserting");
+                        break;
+                    case "SEARCH":
+                    case "S":
+                        Console.Write("Please enter search ID: ");
+                        extraInput = Console.ReadLine();
+                        Row rowT = tree.tryFind(Int32.Parse(extraInput.Trim()));
+                        Console.WriteLine(rowT == null ? "null" : rowT.toString());
+                        break;
+
+                    case "VISUALIZE":
+                    case "V":
+                        String visualizePath = folderPath + "\\visualize.txt";
+                        tree.visualize(visualizePath);
+                        OldBatCommand("Start notepad " + visualizePath);
+                        break;
+                    case "FOLDER":
+                        OldBatCommand("%SystemRoot%\\explorer.exe " + folderPath);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            Console.WriteLine("Exiting");
+        }
+
+
+        public static void shuffleRowList(List<Row> rowList)
+        {
+            Random random = new Random();
+
+            for (int count = 0; count < rowList.Count; count++)
+            {
+                int ranNum1 = random.Next(0, rowList.Count);
+                int ranNum2 = random.Next(0, rowList.Count);
+
+                if (ranNum1 != ranNum2 && ranNum1 != 0 && ranNum2 != 0)
+                {
+                    Row row1 = new Row(rowList[ranNum1]);
+                    Row row2 = new Row(rowList[ranNum2]);
+
+                    rowList[ranNum1] = row2;
+                    rowList[ranNum2] = row1;
+                }
+            }
+        }
+        public static List<Row> meregeTask1AndTask2(List<Row> task1RowList, List<Row> task2RowList)
+        {
+            int begin = 0;
+            int end = 0;
+
+            if (task1RowList[0].id <= task2RowList[0].id)
+                begin = task1RowList[0].id;
+            else
+                begin = task2RowList[0].id;
+
+            if (task1RowList[task1RowList.Count - 1].id >= task2RowList[task2RowList.Count - 1].id)
+                end = task1RowList[task1RowList.Count - 1].id;
+            else
+                end = task2RowList[task2RowList.Count - 1].id;
+
+            BPTree task1Tree = new BPTree(3);
+            BPTree task2Tree = new BPTree(3);
+
+            Task task4 = Task.Run(() =>
+            {
+                inserting(task1Tree, task1RowList, -1);
+            });
+
+            Task task5 = Task.Run(() =>
+            {
+                inserting(task2Tree, task2RowList, -1);
+            });
+
+            task4.Wait();
+            task5.Wait();
+
+            List<Row> mergeRowList = new List<Row>();
+
+            while (begin <= end)
+            {
+                Row row1 = task1Tree.tryFind(begin);
+                Row row2 = task2Tree.tryFind(begin);
+
+                if (row1 != null)
+                    mergeRowList.Add(new Row(row1));
+                else if (row1 != null)
+                    mergeRowList.Add(new Row(row2));
+
+                begin++;
+            }
+
+            //clean out unessesary data
+
+
+            return mergeRowList;
+        }
+        public static List<Row> CombineFile(String dataFilePath, String symtomFilePath, String vaxFilePath, ref String fileHeader)
+        {
+            List<Task> taskList = new List<Task>();
+            List<Row> symtomList = new List<Row>();
+            List<Row> vaxList = new List<Row>();
+            List<Row> dataList = new List<Row>();
+            String header = "";
+
             Console.WriteLine("Begin read 3 new file");
-            String task2Header = "";
-            readCSV(dataList, ref header, folderPath + "\\2021VAERSDataSeptember.csv");
-            task2Header += header;
-            readCSV(vaxList, ref header, folderPath + "\\2021VAERSVAXSeptember.csv");
-            task2Header += "," + header.Substring(header.IndexOf(",") + 1);
-            readCSV(symtomList, ref header, folderPath + "\\2021VAERSSYMPTOMSSeptember.csv");
-            task2Header += "," + header.Substring(header.IndexOf(",") + 1);
+            fileHeader = "";
+            readCSV(dataList, ref header, dataFilePath);
+            fileHeader += header;
+            readCSV(vaxList, ref header, vaxFilePath);
+            fileHeader += "," + header.Substring(header.IndexOf(",") + 1);
+            readCSV(symtomList, ref header, symtomFilePath);
+            fileHeader += "," + header.Substring(header.IndexOf(",") + 1);
             Console.WriteLine("Done read 3 new file");
 
             Console.WriteLine("Begin breakdown all row");
@@ -96,126 +324,17 @@ namespace Project_2
 
             Console.WriteLine("Done filtering all file");
 
-            Console.WriteLine("Begin combinding file");
-            List<Row> task2RowList = combineFile(dataList, symtomList, vaxList);
-            Console.WriteLine("Done Combinding file");
+            List<Row> file = new List<Row>();
+            Console.WriteLine("Begin Comebine file");
+            file = combineFile(dataList, symtomList, vaxList);
+            Console.WriteLine("Done Comebine file");
 
-            Console.WriteLine("Begin Wrtie task 2 csv file");
-            writeCSV(task2RowList, task2Header, folderPath + "\\task2File.csv");
-            Console.WriteLine("Done Wrtie task 2 csv file");
+            taskList.Clear();
+            symtomList.Clear();
+            vaxList.Clear();
+            dataList.Clear();
 
-            Console.WriteLine("Begin merging new task 2 file into task 1 file");
-            int begin = 0;
-            int end = 0;
-
-            if (task1RowList[0].id <= task2RowList[0].id)
-                begin = task1RowList[0].id;
-            else
-                begin = task2RowList[0].id;
-
-            if (task1RowList[task1RowList.Count - 1].id >= task2RowList[task2RowList.Count - 1].id)
-                end = task1RowList[task1RowList.Count - 1].id;
-            else
-                end = task2RowList[task2RowList.Count - 1].id;
-
-            Dictionary<int, Row> task1Dict = new Dictionary<int, Row>();
-            Dictionary<int, Row> task2Dict = new Dictionary<int, Row>();
-
-            Task task4 = Task.Run(() =>
-            {
-                foreach (Row row in task1RowList)
-                {
-                    task1Dict.TryAdd(row.id, row);
-                }
-            });
-
-            Task task5 = Task.Run(() =>
-            {
-                foreach(Row row in task2RowList)
-                {
-                    task2Dict.TryAdd(row.id, row);
-                }
-            });
-
-            task4.Wait();
-            task5.Wait();
-
-            List<Row> mergeRowList = new List<Row>();
-
-            while(begin <= end)
-            {
-                Row row1;
-                bool foundList1 = task1Dict.TryGetValue(begin, out row1);
-                Row row2;
-                bool foundList2 = task2Dict.TryGetValue(begin, out row2);
-
-                if (foundList1)
-                    mergeRowList.Add(new Row(row1));
-                else if(foundList2)
-                    mergeRowList.Add(new Row(row2));
-
-                begin++;
-            }
-
-            Console.WriteLine("Done merging new task 2 file into task 1 file");
-
-            Console.WriteLine("Begin write merge csv file");
-            writeCSV(mergeRowList, task2Header, folderPath + "\\mergeFile.csv");
-            Console.WriteLine("Done write merge csv file");
-
-            //clean out unessesary data
-            task1RowList.Clear();
-            task2RowList.Clear();
-            task1Dict.Clear();
-            task2Dict.Clear();
-
-            //----------------------main loop-------------------------------------------
-            String input = "";
-
-            while(input.CompareTo("EXIT") != 0)
-            {
-                Console.Write("Command: ");
-                input = Console.ReadLine();
-                input = input.ToUpper();
-                String extraInput = "";
-
-                switch(input)
-                {
-                    case "HELP":
-                        Console.WriteLine("HELP\ninserting\ni(inserting)\nvisualize\nv(visualize)\nsearch\ns(search)\nfolder<open folder location>");
-                        break;
-
-                    case "INSERTING":
-                    case "I":
-                        tree = new BPTree(maxDegree);
-                        Console.Write("enter inserting max: ");
-                        extraInput = Console.ReadLine();
-                        Console.WriteLine("Begin inserting");
-                        inserting(tree, mergeRowList, Int32.Parse(extraInput));
-                        Console.WriteLine("Done inserting");
-                        break;
-                    case "SEARCH":
-                    case "S":
-                        Console.Write("Please enter search ID: ");
-                        extraInput = Console.ReadLine();
-                        Console.WriteLine(tree.find(Int32.Parse(extraInput.Trim())).toString());
-                        break;
-
-                    case "VISUALIZE":
-                    case "V":
-                        String visualizePath = folderPath + "\\visualize.txt";
-                        tree.visualize(visualizePath);
-                        OldBatCommand("Start notepad " + visualizePath);
-                        break;
-                    case "FOLDER":
-                        OldBatCommand("%SystemRoot%\\explorer.exe " + folderPath);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            Console.WriteLine("Exiting");
+            return file;
         }
 
         public static List<Row> combineFile(List<Row> dataFile, List<Row> symtomFile, List<Row> vaxFile)
@@ -318,14 +437,12 @@ namespace Project_2
 
                     newRowList.Add(new Row(tempRow.ToString()));
                 }
-                else
-                    Console.WriteLine("skip: " + currentID);
+                //else
+                //    Console.WriteLine("skip: " + currentID);
             }
 
             return newRowList;
         }
-
-
 
         public static void inserting(BPTree tree, List<Row> rowList, int max)
         {
@@ -346,7 +463,6 @@ namespace Project_2
                 Console.WriteLine(ex.Message);
             }
         }
-
 
         public static List<Row> filterVax(List<Row> rowList)
         {
@@ -446,6 +562,7 @@ namespace Project_2
 
         public static void readCSV(List<Row> pairList, ref String header, String absolutePath)
         {
+            pairList.Clear();
             using (var steamReader = new StreamReader(absolutePath))
             {
                 header = steamReader.ReadLine();
@@ -557,5 +674,7 @@ namespace Project_2
                 }
             }
         }
+
+
     }
 }
