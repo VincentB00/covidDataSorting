@@ -302,7 +302,24 @@ namespace Project_2
             return newLeafNode;
         }
 
+        public void delete(int id)
+        {
+            int count = 0;
+            while(count < rowList.Count)
+            {
+                if (rowList[count].id == id)
+                {
+                    break;
+                }
+                else
+                    count++;
+            }
 
+            if(count == 0)
+            {
+                
+            }
+        }
 
 
 

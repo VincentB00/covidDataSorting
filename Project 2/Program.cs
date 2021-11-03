@@ -18,60 +18,10 @@ namespace Project_2
             String task2Header = "";
             String input = "";
             int maxDegree = 3;
-            BPTree tree = new BPTree(maxDegree);
-            List<Row> testList = new List<Row>();
+            BPTree tree;
 
             String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\VAERS_COVID_DataAugust2021.csv";
             String folderPath = absolutePath.Substring(0, absolutePath.LastIndexOf('\\'));
-
-            //----------------------------------------------------
-
-            //for (int count = 1; count < 600000; count++)
-            //{
-            //    testList.Add(new Row(count + ", something"));
-            //}
-
-            //shuffleRowList(testList);
-
-            //foreach (Row row in testList)
-            //{
-            //    tree.insert(row);
-            //}
-
-
-            //while (input.CompareTo("EXIT") != 0)
-            //{
-            //    Console.Write("input: ");
-            //    input = Console.ReadLine().Trim();
-            //    switch (input.ToLower())
-            //    {
-            //        case "i":
-            //            Console.Write("insert: ");
-            //            tree.insert(new Row(Int32.Parse(Console.ReadLine().Trim()) + ", something"));
-            //            break;
-            //        case "v":
-            //            String path = folderPath + "\\visualize.txt";
-            //            tree.visualize(path);
-            //            OldBatCommand("Start notepad " + path);
-            //            break;
-            //        case "vv":
-            //            String path3 = folderPath + "\\visualizeVertical.txt";
-            //            tree.visualizeVertical(path3, 20);
-            //            OldBatCommand("Start notepad " + path3);
-            //            break;
-            //        case "iv":
-            //            Console.Write("insert: ");
-            //            tree.insert(new Row(Int32.Parse(Console.ReadLine().Trim()) + ", something"));
-            //            String path2 = folderPath + "\\visualize.txt";
-            //            tree.visualize(path2);
-            //            OldBatCommand("Start notepad " + path2);
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //}
-
-            //return;
 
             //----------------------------------------------------
 
@@ -104,8 +54,7 @@ namespace Project_2
             Console.Write("Enter max degree number of node: ");
             input = Console.ReadLine();
 
-            //Console.Write("Merge task 1 file and task 2 file before insert into tree(Y|N): ");
-            //input = Console.ReadLine().ToUpper();
+            tree = new BPTree(Int32.Parse(input));
 
             Console.WriteLine("Begin inserting task 1 file into tree");
             inserting(tree, task1RowList, -1);
@@ -118,45 +67,6 @@ namespace Project_2
                     tree.insert(row);
             }
             Console.WriteLine("Done inserting task 2 file into tree");
-
-            mergeRowList = task1RowList; //for testing
-
-
-
-            //if (input.CompareTo("Y") == 0)
-            //{
-            //    Console.WriteLine("Begin merge task 1 file and task 2 file");
-            //    mergeRowList = meregeTask1AndTask2(task1RowList, task2RowList);
-            //    Console.WriteLine("Done merge task 1 file and task 2 file");
-            //    Console.WriteLine("Begin write merge csv file");
-            //    writeCSV(mergeRowList, header, folderPath + "\\mergeFile.csv");
-            //    Console.WriteLine("Done write merge csv file");
-
-            //    Console.WriteLine("Begin inserting merge file into tree");
-            //    inserting(tree, mergeRowList, -1);
-            //    Console.WriteLine("Done inserting merge file into tree");
-
-            //    task1RowList.Clear();
-            //    task2RowList.Clear();
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Begin inserting task 1 file into tree");
-            //    inserting(tree, task1RowList, -1);
-            //    Console.WriteLine("Done inserting task 1 file into tree");
-
-            //    Console.WriteLine("Begin inserting task 2 file into tree");
-            //    foreach (Row row in task2RowList)
-            //    {
-            //        if (tree.tryFind(row.id) == null)
-            //            tree.insert(row);
-            //    }
-            //    Console.WriteLine("Done inserting task 2 file into tree");
-
-            //    mergeRowList = task1RowList; //for testing
-            //}
-
-
 
 
             //----------------------main loop-------------------------------------------
@@ -183,7 +93,7 @@ namespace Project_2
                             Console.Write("enter inserting max: ");
                             extraInput = Console.ReadLine();
                             Console.WriteLine("Begin inserting");
-                            inserting(tree, mergeRowList, Int32.Parse(extraInput));
+                            inserting(tree, task1RowList, Int32.Parse(extraInput));
                             Console.WriteLine("Done inserting");
                             break;
                         case "SEARCH":

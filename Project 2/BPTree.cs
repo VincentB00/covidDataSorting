@@ -96,7 +96,6 @@ namespace Project_2
             }
         }
 
-
         private Node splitNode(Node currentNode)
         {
             Node newNode = currentNode.Split();
@@ -170,6 +169,18 @@ namespace Project_2
             leafNode.rightLeafNode = newLeafNode;
 
             return parentNode;
+        }
+
+        public bool delete(int id)
+        {
+            if (tryFind(id) == null)
+                return false;
+
+            Node nodeP = this.node.Find(this.node, id);
+
+
+
+            return true;
         }
 
         //------------------------------------------------------------------------------------
