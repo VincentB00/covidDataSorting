@@ -24,7 +24,9 @@ namespace Project_2
             String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\VAERS_COVID_DataAugust2021.csv";
             String folderPath = absolutePath.Substring(0, absolutePath.LastIndexOf('\\'));
 
-            //for (int count = 1; count < 500; count++)
+            //----------------------------------------------------
+
+            //for (int count = 1; count < 600000; count++)
             //{
             //    testList.Add(new Row(count + ", something"));
             //}
@@ -37,11 +39,11 @@ namespace Project_2
             //}
 
 
-            //while (input.CompareTo("EXIT") != 0 )
+            //while (input.CompareTo("EXIT") != 0)
             //{
             //    Console.Write("input: ");
             //    input = Console.ReadLine().Trim();
-            //    switch(input.ToLower())
+            //    switch (input.ToLower())
             //    {
             //        case "i":
             //            Console.Write("insert: ");
@@ -51,6 +53,11 @@ namespace Project_2
             //            String path = folderPath + "\\visualize.txt";
             //            tree.visualize(path);
             //            OldBatCommand("Start notepad " + path);
+            //            break;
+            //        case "vv":
+            //            String path3 = folderPath + "\\visualizeVertical.txt";
+            //            tree.visualizeVertical(path3, 20);
+            //            OldBatCommand("Start notepad " + path3);
             //            break;
             //        case "iv":
             //            Console.Write("insert: ");
@@ -65,6 +72,8 @@ namespace Project_2
             //}
 
             //return;
+
+            //----------------------------------------------------
 
             Console.WriteLine("Begin reading task 1 csv file");
 
@@ -95,44 +104,60 @@ namespace Project_2
             Console.Write("Enter max degree number of node: ");
             input = Console.ReadLine();
 
-            Console.Write("Merge task 1 file and task 2 file before insert into tree(Y|N): ");
-            input = Console.ReadLine().ToUpper();
+            //Console.Write("Merge task 1 file and task 2 file before insert into tree(Y|N): ");
+            //input = Console.ReadLine().ToUpper();
 
-            if (input.CompareTo("Y") == 0)
+            Console.WriteLine("Begin inserting task 1 file into tree");
+            inserting(tree, task1RowList, -1);
+            Console.WriteLine("Done inserting task 1 file into tree");
+
+            Console.WriteLine("Begin inserting task 2 file into tree");
+            foreach (Row row in task2RowList)
             {
-                Console.WriteLine("Begin merge task 1 file and task 2 file");
-                mergeRowList = meregeTask1AndTask2(task1RowList, task2RowList);
-                Console.WriteLine("Done merge task 1 file and task 2 file");
-                Console.WriteLine("Begin write merge csv file");
-                writeCSV(mergeRowList, header, folderPath + "\\mergeFile.csv");
-                Console.WriteLine("Done write merge csv file");
-
-                Console.WriteLine("Begin inserting merge file into tree");
-                inserting(tree, mergeRowList, -1);
-                Console.WriteLine("Done inserting merge file into tree");
-
-                task1RowList.Clear();
-                task2RowList.Clear();
+                if (tree.tryFind(row.id) == null)
+                    tree.insert(row);
             }
-            else
-            {
-                Console.WriteLine("Begin inserting task 1 file into tree");
-                inserting(tree, task1RowList, -1);
-                Console.WriteLine("Done inserting task 1 file into tree");
+            Console.WriteLine("Done inserting task 2 file into tree");
 
-                Console.WriteLine("Begin inserting task 2 file into tree");
-                foreach (Row row in task2RowList)
-                {
-                    if (tree.tryFind(row.id) == null)
-                        tree.insert(row);
-                }
-                Console.WriteLine("Done inserting task 2 file into tree");
-
-                mergeRowList = task1RowList; //for testing
-            }
+            mergeRowList = task1RowList; //for testing
 
 
-            
+
+            //if (input.CompareTo("Y") == 0)
+            //{
+            //    Console.WriteLine("Begin merge task 1 file and task 2 file");
+            //    mergeRowList = meregeTask1AndTask2(task1RowList, task2RowList);
+            //    Console.WriteLine("Done merge task 1 file and task 2 file");
+            //    Console.WriteLine("Begin write merge csv file");
+            //    writeCSV(mergeRowList, header, folderPath + "\\mergeFile.csv");
+            //    Console.WriteLine("Done write merge csv file");
+
+            //    Console.WriteLine("Begin inserting merge file into tree");
+            //    inserting(tree, mergeRowList, -1);
+            //    Console.WriteLine("Done inserting merge file into tree");
+
+            //    task1RowList.Clear();
+            //    task2RowList.Clear();
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Begin inserting task 1 file into tree");
+            //    inserting(tree, task1RowList, -1);
+            //    Console.WriteLine("Done inserting task 1 file into tree");
+
+            //    Console.WriteLine("Begin inserting task 2 file into tree");
+            //    foreach (Row row in task2RowList)
+            //    {
+            //        if (tree.tryFind(row.id) == null)
+            //            tree.insert(row);
+            //    }
+            //    Console.WriteLine("Done inserting task 2 file into tree");
+
+            //    mergeRowList = task1RowList; //for testing
+            //}
+
+
+
 
             //----------------------main loop-------------------------------------------
 
@@ -143,42 +168,55 @@ namespace Project_2
                 input = Console.ReadLine();
                 input = input.ToUpper();
                 String extraInput = "";
-
-                switch(input)
+                try
                 {
-                    case "HELP":
-                        Console.WriteLine("HELP\ninserting\ni(inserting)\nvisualize\nv(visualize)\nsearch\ns(search)\nfolder<open folder location>");
-                        break;
-                    case "INSERTING":
-                    case "I":
-                        Console.Write("Enter maximum degree of node: ");
-                        maxDegree = Int32.Parse(Console.ReadLine());
-                        tree = new BPTree(maxDegree);
-                        Console.Write("enter inserting max: ");
-                        extraInput = Console.ReadLine();
-                        Console.WriteLine("Begin inserting");
-                        inserting(tree, mergeRowList, Int32.Parse(extraInput));
-                        Console.WriteLine("Done inserting");
-                        break;
-                    case "SEARCH":
-                    case "S":
-                        Console.Write("Please enter search ID: ");
-                        extraInput = Console.ReadLine();
-                        Row rowT = tree.tryFind(Int32.Parse(extraInput.Trim()));
-                        Console.WriteLine(rowT == null ? "null" : rowT.toString());
-                        break;
-
-                    case "VISUALIZE":
-                    case "V":
-                        String visualizePath = folderPath + "\\visualize.txt";
-                        tree.visualize(visualizePath);
-                        OldBatCommand("Start notepad " + visualizePath);
-                        break;
-                    case "FOLDER":
-                        OldBatCommand("%SystemRoot%\\explorer.exe " + folderPath);
-                        break;
-                    default:
-                        break;
+                    switch (input)
+                    {
+                        case "HELP":
+                            Console.WriteLine("HELP\ninserting\ni(inserting)\nVISUALIZEVERTICAL\nVV(VISUALIZEVERTICAL)\nvisualize\nv(visualize)\nsearch\ns(search)\nfolder<open folder location>");
+                            break;
+                        case "INSERTING":
+                        case "I":
+                            Console.Write("Enter maximum degree of node: ");
+                            maxDegree = Int32.Parse(Console.ReadLine());
+                            tree = new BPTree(maxDegree);
+                            Console.Write("enter inserting max: ");
+                            extraInput = Console.ReadLine();
+                            Console.WriteLine("Begin inserting");
+                            inserting(tree, mergeRowList, Int32.Parse(extraInput));
+                            Console.WriteLine("Done inserting");
+                            break;
+                        case "SEARCH":
+                        case "S":
+                            Console.Write("Please enter search ID: ");
+                            extraInput = Console.ReadLine();
+                            Row rowT = tree.tryFind(Int32.Parse(extraInput.Trim()));
+                            Console.WriteLine(rowT == null ? "null" : rowT.toString());
+                            break;
+                        case "VISUALIZEVERTICAL":
+                        case "VV":
+                            Console.Write("Please enter Expected ID space: ");
+                            extraInput = Console.ReadLine();
+                            String path3 = folderPath + "\\visualizeVertical.txt";
+                            tree.visualizeVertical(path3, Int32.Parse(extraInput.Trim()));
+                            OldBatCommand("Start notepad " + path3);
+                            break;
+                        case "VISUALIZE":
+                        case "V":
+                            String visualizePath = folderPath + "\\visualize.txt";
+                            tree.visualize(visualizePath);
+                            OldBatCommand("Start notepad " + visualizePath);
+                            break;
+                        case "FOLDER":
+                            OldBatCommand("%SystemRoot%\\explorer.exe " + folderPath);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
 

@@ -9,7 +9,8 @@ namespace Project_2
     {
         public int maxDegree;
         Node node;
-        List<String> lines;
+        List<String> lines; //for visualizing
+        VisualColumn vc; //for visualizing
 
         public BPTree()
         {
@@ -171,6 +172,79 @@ namespace Project_2
             return parentNode;
         }
 
+        //------------------------------------------------------------------------------------
+
+        public void visualizeVertical(String absolutePath, int space)
+        {
+            List<Task> taskList = new List<Task>();
+            vc = new VisualColumn();
+
+            getVisualLine(this.node);
+
+            foreach (KeyValuePair<int, Column> entry in vc.columns)
+            {
+                Task task = Task.Run(() =>
+                {
+                    entry.Value.breakDownToRowList();
+                });
+                taskList.Add(task);
+            }
+
+            foreach (Task task in taskList)
+                task.Wait();
+
+            int treeHeight = getTreeHeight(this.node, 0);
+
+            int longestHeight = vc.getLast().Count();
+
+            using (StreamWriter sw = new StreamWriter(absolutePath))
+            {
+                for (int count = 0; count < longestHeight; count++)
+                {
+                    foreach (KeyValuePair<int, Column> entry in vc.columns)
+                    {
+                        String str;
+                        if (count == longestHeight - 1)
+                            str = entry.Value.getData(count);
+                        else
+                            str = entry.Value.getData(count, longestHeight);
+
+                        sw.Write(fillString(str, space));
+                    }
+                    sw.WriteLine();
+                }
+            }
+
+        }
+
+        public String fillString(String str, int maxLength)
+        {
+            while (str.Length < maxLength)
+                str += " ";
+
+            return str;
+        }
+
+        public void getVisualLine(Node currentNode)
+        {
+            int currentHeight = getCurrentHeight(currentNode, 0);
+
+            vc.add(currentNode.rowList, currentHeight);
+
+            if (!currentNode.isLeafNode())
+            {
+                foreach (Node child in currentNode.childNode)
+                {
+                    //Task task = Task.Run(() =>
+                    //{
+                    //    getVisualLine(child);
+                    //});
+                    getVisualLine(child);
+                }
+            }
+        }
+
+
         public void visualize(String absolutePath)
         {
             lines = new List<string>();
@@ -204,6 +278,8 @@ namespace Project_2
             }
 
         }
+
+
 
         private void getLineList(Node currentNode)
         {
