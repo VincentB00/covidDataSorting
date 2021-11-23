@@ -15,9 +15,24 @@ namespace Project_3
 
             String folderPath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 3\\data";
 
-            task1File = CombineFile(folderPath + "\\2021VAERSDATA.csv", folderPath + "\\2021VAERSSYMPTOMS.csv", folderPath + "\\2021VAERSVAX.csv", ref header);
+            Console.WriteLine("Do you want to read and combine 2021 3 file to VERSData_ML.csv <Y|N>: ");
+            input = Console.ReadLine();
 
-            writeCSV(task1File, header, folderPath + "\\VAERSData_ML.csv");
+            if(input.ToUpper().CompareTo("Y") == 0)
+            {
+                task1File = CombineFile(folderPath + "\\2021VAERSDATA.csv", folderPath + "\\2021VAERSSYMPTOMS.csv", folderPath + "\\2021VAERSVAX.csv", ref header);
+                Console.WriteLine("Begin write task 1 file");
+                writeCSV(task1File, header, folderPath + "\\VAERSData_ML.csv");
+                Console.WriteLine("Done write task 1 file");
+            }
+            else
+            {
+                Console.WriteLine("Begin read task 1 file");
+                readCSV(task1File, ref header, folderPath + "\\VAERSData_ML.csv");
+                Console.WriteLine("done read task 1 file");
+            }
+
+
         }
 
 
@@ -39,11 +54,11 @@ namespace Project_3
             //fileHeader += "," + header.Substring(header.IndexOf(",") + 1);
             Console.WriteLine("Done read 3 new file");
 
-            List<int> columnIndex = new List<int>() { 0, 2 };
+            List<int> columnIndex = new List<int>() { 0, 36, 1, 3, 6, 9, 10, 18 };
 
-            Row headerRow = new Row(fileHeader);
+            Row headerRow = new Row(fileHeader, false);
             headerRow.breakDownLine();
-            headerRow = new Row(headerRow);
+            headerRow = new Row(headerRow, columnIndex, false);
 
             Console.WriteLine("Begin breakdown all row");
             foreach (Row row in symtomList)
@@ -114,7 +129,7 @@ namespace Project_3
 
             for(int count = 0; count < maxSymtom; count ++)
             {
-                headerRow.columns.Add("symptom_" + count + 1);
+                headerRow.columns.Add("symptom_" + (count + 1));
             }
 
             fileHeader = headerRow.ToString();
@@ -131,8 +146,8 @@ namespace Project_3
             Dictionary<int, Row> symtomDict = new Dictionary<int, Row>();
             bool skip = false;
             Row dataRow, vaxRow, symtomRow, tempRow;
-            int maxDataColumn = 35;
-            int maxVaxColumn = 8;
+            int maxDataColumn = 5;
+            int maxVaxColumn = 2;
             int currentID = 0;
             //------------------------start here--------------------------------
 
@@ -270,7 +285,8 @@ namespace Project_3
                 //append all symtom
                 for (int column = 1; column < pointerRow.columns.Count; column++)
                 {
-                    row.columns.Add(pointerRow.columns[column].ToString());
+                    if(column %2 != 0)
+                        row.columns.Add(pointerRow.columns[column].ToString());
                 }
 
                 //if the next one is not the same or if this is the last index
@@ -298,7 +314,18 @@ namespace Project_3
 
         }
 
+        public static List<Row> filterData(List<Row> rowList)
+        {
+            List<Row> newRowList = new List<Row>();
+            foreach (Row row in rowList)
+            {
+                List<int> columnIndex = new List<int>() { 0, 1, 3, 6, 9, 10, 18 };
+                newRowList.Add(new Row(row, columnIndex));
+            }
+            rowList.Clear();
 
+            return newRowList;
+        }
 
         public static List<Row> filterDupliacate(List<Row> rowList)
         {
@@ -332,18 +359,7 @@ namespace Project_3
         }
 
 
-        public static List<Row> filterData(List<Row> rowList)
-        {
-            List<Row> newRowList = new List<Row>();
-            foreach (Row row in rowList)
-            {
-                List<int> columnIndex = new List<int>() { 0, 1, 3, 6, 9, 10, 18 };
-                newRowList.Add(new Row(row, columnIndex));
-            }
-            rowList.Clear();
-
-            return newRowList;
-        }
+        
 
 
 

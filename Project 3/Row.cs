@@ -17,10 +17,32 @@ namespace Project_3
         {
             columns = new List<string>();
         }
+        public Row(String line, bool getID)
+        {
+            this.line = line;
+            if(getID)
+                this.id = Int32.Parse(line.Substring(0, line.IndexOf(',')));
+        }
         public Row(String line)
         {
             this.line = line;
             this.id = Int32.Parse(line.Substring(0, line.IndexOf(',')));
+        }
+        public Row(Row row, List<int> columnIndex, bool getID)
+        {
+            if (row.columns != null && row.columns.Count > 0)
+            {
+                columns = new List<string>();
+                foreach (int index in columnIndex)
+                {
+                    columns.Add(row.columns[index]);
+                }
+            }
+
+            this.line = this.ToString();
+
+            if(getID)
+                this.id = Int32.Parse(line.Substring(0, line.IndexOf(',')));
         }
         public Row(Row row, List<int> columnIndex)
         {
