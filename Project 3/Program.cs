@@ -11,13 +11,13 @@ namespace Project_3
         {
             String header = "";
             String input = "";
+            List<Row> task1File = new List<Row>();
 
-            String absolutePath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 2\\Data\\VAERS_COVID_DataAugust2021.csv";
-            String folderPath = absolutePath.Substring(0, absolutePath.LastIndexOf('\\'));
+            String folderPath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 3\\data";
 
+            task1File = CombineFile(folderPath + "\\2021VAERSDATA.csv", folderPath + "\\2021VAERSSYMPTOMS.csv", folderPath + "\\2021VAERSVAX.csv", ref header);
 
-
-
+            writeCSV(task1File, header, folderPath + "\\VAERSData_ML.csv");
         }
 
 
@@ -36,8 +36,14 @@ namespace Project_3
             readCSV(vaxList, ref header, vaxFilePath);
             fileHeader += "," + header.Substring(header.IndexOf(",") + 1);
             readCSV(symtomList, ref header, symtomFilePath);
-            fileHeader += "," + header.Substring(header.IndexOf(",") + 1);
+            //fileHeader += "," + header.Substring(header.IndexOf(",") + 1);
             Console.WriteLine("Done read 3 new file");
+
+            List<int> columnIndex = new List<int>() { 0, 2 };
+
+            Row headerRow = new Row(fileHeader);
+            headerRow.breakDownLine();
+            headerRow = new Row(headerRow);
 
             Console.WriteLine("Begin breakdown all row");
             foreach (Row row in symtomList)
@@ -84,14 +90,21 @@ namespace Project_3
                 vaxList = filterVax(vaxList);
             });
 
+            Task task3 = Task.Run(() =>
+            {
+                dataList = filterData(dataList);
+            });
+
             task1.Wait();
             task2.Wait();
+            task3.Wait();
 
             Console.WriteLine("Done filtering all file");
 
             List<Row> file = new List<Row>();
             Console.WriteLine("Begin Comebine file");
-            file = combineFile(dataList, symtomList, vaxList);
+            int maxSymtom = 0;
+            file = combineFile(dataList, symtomList, vaxList, ref maxSymtom);
             Console.WriteLine("Done Comebine file");
 
             taskList.Clear();
@@ -99,10 +112,17 @@ namespace Project_3
             vaxList.Clear();
             dataList.Clear();
 
+            for(int count = 0; count < maxSymtom; count ++)
+            {
+                headerRow.columns.Add("symptom_" + count + 1);
+            }
+
+            fileHeader = headerRow.ToString();
+
             return file;
         }
 
-        public static List<Row> combineFile(List<Row> dataFile, List<Row> symtomFile, List<Row> vaxFile)
+        public static List<Row> combineFile(List<Row> dataFile, List<Row> symtomFile, List<Row> vaxFile, ref int maxSymtom)
         {
             List<Row> newRowList = new List<Row>();
             //BPTree dataTree = new BPTree(3);
@@ -192,18 +212,26 @@ namespace Project_3
 
                     task5.Wait();
 
-                    tempRow.addData(dataRow);
+                    dataRow.columns.RemoveAt(0);
 
                     for (int count = 1; count < vaxRow.columns.Count; count++)
                         tempRow.columns.Add(vaxRow.columns[count]);
 
+                    tempRow.addData(dataRow);
+
                     for (int count = 1; count < symtomRow.columns.Count; count++)
                         tempRow.columns.Add(symtomRow.columns[count]);
 
+                    //increase max symtom
+                    if (symtomRow.columns.Count > maxSymtom)
+                        maxSymtom = symtomRow.columns.Count;
+
+                    tempRow.columns.Insert(0, currentID + "");
+
                     newRowList.Add(new Row(tempRow.ToString()));
                 }
-                //else
-                //    Console.WriteLine("skip: " + currentID);
+                else
+                    Console.WriteLine("skip: " + currentID);
             }
 
             return newRowList;
@@ -216,7 +244,8 @@ namespace Project_3
             {
                 if (row.columns[1].CompareTo("COVID19") == 0)
                 {
-                    newRowList.Add(new Row(row));
+                    List<int> columnIndex = new List<int>() {0, 2};
+                    newRowList.Add(new Row(row, columnIndex));
                 }
             }
             rowList.Clear();
@@ -256,7 +285,7 @@ namespace Project_3
 
                     row.columns.Insert(0, currentID);
 
-                    newRowList.Add(new Row(row.ToString())); //problem here
+                    newRowList.Add(new Row(row.ToString()));
 
                     row.clear();
                 }
@@ -268,6 +297,8 @@ namespace Project_3
 
 
         }
+
+
 
         public static List<Row> filterDupliacate(List<Row> rowList)
         {
@@ -301,7 +332,18 @@ namespace Project_3
         }
 
 
+        public static List<Row> filterData(List<Row> rowList)
+        {
+            List<Row> newRowList = new List<Row>();
+            foreach (Row row in rowList)
+            {
+                List<int> columnIndex = new List<int>() { 0, 1, 3, 6, 9, 10, 18 };
+                newRowList.Add(new Row(row, columnIndex));
+            }
+            rowList.Clear();
 
+            return newRowList;
+        }
 
 
 

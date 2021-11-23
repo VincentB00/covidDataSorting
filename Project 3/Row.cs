@@ -22,6 +22,20 @@ namespace Project_3
             this.line = line;
             this.id = Int32.Parse(line.Substring(0, line.IndexOf(',')));
         }
+        public Row(Row row, List<int> columnIndex)
+        {
+            if (row.columns != null && row.columns.Count > 0)
+            {
+                columns = new List<string>();
+                foreach (int index in columnIndex)
+                {
+                    columns.Add(row.columns[index]);
+                }
+            }
+
+            this.line = this.ToString();
+            this.id = Int32.Parse(line.Substring(0, line.IndexOf(',')));
+        }
         public Row(Row row)
         {
             this.line = row.line;
