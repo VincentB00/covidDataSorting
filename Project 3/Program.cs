@@ -15,24 +15,47 @@ namespace Project_3
 
             String folderPath = "C:\\Users\\vince\\OneDrive\\study\\Oswego\\CSC365\\Project 3\\data";
 
-            Console.WriteLine("Do you want to read and combine 2021 3 file to VERSData_ML.csv <Y|N>: ");
+            Console.Write("Do you want to read and combine 2021 3 file to VERSData_ML.csv <Y|N>: ");
             input = Console.ReadLine();
 
             if(input.ToUpper().CompareTo("Y") == 0)
             {
-                task1File = CombineFile(folderPath + "\\2021VAERSDATA.csv", folderPath + "\\2021VAERSSYMPTOMS.csv", folderPath + "\\2021VAERSVAX.csv", ref header);
+                task1File = CombineFile(folderPath + "\\2020VAERSDATA.csv", folderPath + "\\2020VAERSSYMPTOMS.csv", folderPath + "\\2020VAERSVAX.csv", ref header);
                 Console.WriteLine("Begin write task 1 file");
-                writeCSV(task1File, header, folderPath + "\\VAERSData_ML.csv");
+                writeCSV(task1File, header, folderPath + "\\VAERSData_ML_2020.csv");
                 Console.WriteLine("Done write task 1 file");
             }
             else
             {
                 Console.WriteLine("Begin read task 1 file");
-                readCSV(task1File, ref header, folderPath + "\\VAERSData_ML.csv");
+                //readCSV(task1File, ref header, folderPath + "\\testData.csv");
+                readCSV(task1File, ref header, folderPath + "\\VAERSData_ML_2020.csv");
                 Console.WriteLine("done read task 1 file");
             }
 
+            const int percentageSupport = 20;
 
+            FPGrowth fPGrowth = new FPGrowth();
+
+            List<List<Object>> c1 = fPGrowth.getC1(task1File);
+            List<List<Object>> l1 = fPGrowth.getL1(ref c1, percentageSupport);
+            fPGrowth.buildTree(l1, task1File);
+            Dictionary<string, List<CPB>> CPB = fPGrowth.tree.generateCPB();
+            Dictionary<string, Dictionary<string, int>> CFPT = fPGrowth.generateCFPT(CPB);
+
+            Dictionary<string, Dictionary<string, CPB>> FPG = fPGrowth.generateFPG(CFPT);
+
+
+            fPGrowth.printL1(l1);
+
+            foreach (List<Object> l in l1)
+            {
+                string item = l[0].ToString();
+                fPGrowth.generateAssociationRule(item, FPG, fPGrowth.toDict(l1));
+
+            }
+
+            Console.WriteLine("done");
         }
 
 
@@ -358,8 +381,39 @@ namespace Project_3
             return newRowList;
         }
 
+        public static List<String> toLineList(List<Row> list)
+        {
+            List<String> lineList = new List<String>();
+            for (int i = 0; i < list.Count; i++)
+            {
+                lineList.Add(list[i].line);
+            }
 
-        
+            return lineList;
+        }
+
+        public static List<List<Object>> toObjectList(List<Row> list)
+        {
+            List<List<Object>> newList = new List<List<Object>>();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                Row row = list[i];
+                if(row.columns == null)
+                    row.breakDownLine();
+
+                List<Object> rowList = new List<Object>();
+
+                for(int j = 0; j < row.columns.Count; j++) 
+                {
+                    rowList.Add(row.columns[j]);
+                }
+
+                newList.Add(rowList);
+            }
+
+            return newList;
+        }
 
 
 
@@ -386,5 +440,7 @@ namespace Project_3
                 }
             }
         }
+        
+
     }
 }
